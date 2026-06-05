@@ -184,7 +184,151 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   color: var(--text);
 }
 
-/* pontoon duration picker */
+/* ---- CARPOOL TAB ---- */
+.carpool-section { padding: 12px 16px 100px; }
+
+.road-scene {
+  position: relative;
+  background: linear-gradient(180deg, #d4e8f7 0%, #b8d4f0 40%, #7aaa6e 40%, #5c9450 52%, #3d3d3d 52%, #2a2a2a 100%);
+  border-radius: 14px;
+  height: 130px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.road-line {
+  position: absolute;
+  bottom: 28px; left: 0; right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, #f5c542 0px, #f5c542 30px, transparent 30px, transparent 60px);
+  animation: roadMove 1.2s linear infinite;
+}
+@keyframes roadMove { from { background-position: 0 0; } to { background-position: -60px 0; } }
+.road-trees {
+  position: absolute;
+  top: 35px; left: 0; right: 0;
+  display: flex; gap: 28px; padding: 0 10px;
+}
+.road-tree {
+  font-size: 22px;
+  animation: treeFly 4s linear infinite;
+  opacity: 0.85;
+}
+.road-tree:nth-child(2) { animation-delay: -1.3s; font-size: 18px; }
+.road-tree:nth-child(3) { animation-delay: -2.6s; }
+.road-tree:nth-child(4) { animation-delay: -0.7s; font-size: 20px; }
+.road-tree:nth-child(5) { animation-delay: -3.2s; font-size: 16px; }
+@keyframes treeFly {
+  from { transform: translateX(110vw); }
+  to   { transform: translateX(-200px); }
+}
+.road-car-svg {
+  position: absolute;
+  bottom: 32px; left: 50%; transform: translateX(-50%);
+  width: 100px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+.road-sun {
+  position: absolute; top: 10px; right: 18px;
+  width: 28px; height: 28px; background: #fde68a;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #fde68a88;
+}
+.road-cloud {
+  position: absolute; top: 12px; left: 22px;
+  font-size: 22px; opacity: 0.7;
+  animation: cloudDrift 12s linear infinite;
+}
+@keyframes cloudDrift { from { transform: translateX(-30px); } to { transform: translateX(30px); } }
+
+.car-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden; margin-bottom: 12px;
+}
+.car-card-head {
+  padding: 12px 14px; background: #faf9f6;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.car-card-title { font-size: 14px; font-weight: 600; }
+.car-card-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.car-card-actions { display: flex; gap: 6px; align-items: center; }
+
+.car-interior {
+  padding: 14px;
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 10px;
+}
+.car-row-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--muted); margin-bottom: 6px;
+}
+.car-seats-row {
+  display: flex; gap: 8px;
+}
+.car-seat {
+  flex: 1; min-height: 54px;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; cursor: pointer; transition: all 0.15s;
+  background: var(--bg); position: relative; padding: 6px 4px;
+}
+.car-seat.filled {
+  border-style: solid; border-color: #c7d7fb;
+  background: #f0f5ff;
+}
+.car-seat.driver {
+  border-color: #fde68a; background: #fffbeb;
+}
+.car-seat.driver.filled { border-color: #f59e0b; background: #fffbeb; }
+.car-seat-icon { font-size: 18px; line-height: 1; }
+.car-seat-name {
+  font-size: 11px; font-weight: 600; text-align: center;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.car-seat-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.car-seat-del {
+  position: absolute; top: 3px; right: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fee2e2; color: var(--danger);
+  font-size: 9px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none; line-height: 1;
+}
+.car-divider {
+  border: none; border-top: 1px solid var(--border); margin: 2px 0;
+}
+
+/* password overlay */
+.pw-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.pw-overlay.open { display: flex; }
+.pw-box {
+  background: var(--card); border-radius: 16px;
+  padding: 28px 24px; width: 300px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  text-align: center;
+}
+.pw-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.pw-box p { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.pw-box input {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-family: 'DM Sans', sans-serif;
+  font-size: 15px; text-align: center; letter-spacing: 2px;
+  background: var(--bg); color: var(--text); outline: none; margin-bottom: 10px;
+}
+.pw-box input.wrong { border-color: var(--danger); animation: shake 0.3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.pw-box .pw-btn {
+  width: 100%; padding: 12px; border-radius: 10px;
+  background: var(--text); color: white; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+}
 .pontoon-dur-btn {
   padding: 6px 12px; border-radius: 8px;
   border: 1.5px solid var(--border); background: var(--bg);
@@ -481,6 +625,7 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   <button class="tab" onclick="switchTab('boat')">⛵ Boat</button>
   <button class="tab" onclick="switchTab('bringing')">🧺 Bringing</button>
   <button class="tab" onclick="switchTab('expenses')">💰 Expenses</button>
+  <button class="tab" onclick="switchTab('carpool')">🚗 Carpool</button>
   <button class="tab" onclick="switchTab('manage')">⚙️ Manage</button>
 </div>
 
@@ -684,6 +829,106 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
       <div id="expense-items-list"><div class="empty-state">No expenses added yet</div></div>
     </div>
 
+  </div>
+</div>
+
+<!-- ===== CARPOOL TAB ===== -->
+<div class="page" id="page-carpool">
+  <div class="carpool-section">
+
+    <!-- Road scene -->
+    <div class="road-scene">
+      <div class="road-sun"></div>
+      <div class="road-cloud">☁️</div>
+      <div class="road-trees">
+        <span class="road-tree">🌲</span>
+        <span class="road-tree">🌳</span>
+        <span class="road-tree">🌲</span>
+        <span class="road-tree">🌳</span>
+        <span class="road-tree">🌲</span>
+      </div>
+      <svg class="road-car-svg" viewBox="0 0 120 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Body -->
+        <rect x="5" y="22" width="110" height="26" rx="6" fill="#3b82f6"/>
+        <!-- Cabin -->
+        <path d="M28 22 C32 10 42 8 55 8 L78 8 C90 8 96 12 100 22 Z" fill="#2563eb"/>
+        <!-- Windows -->
+        <rect x="34" y="11" width="22" height="13" rx="3" fill="#bfdbfe" opacity="0.9"/>
+        <rect x="60" y="11" width="22" height="13" rx="3" fill="#bfdbfe" opacity="0.9"/>
+        <!-- Wheels -->
+        <circle cx="28" cy="48" r="9" fill="#1e293b"/>
+        <circle cx="28" cy="48" r="4" fill="#94a3b8"/>
+        <circle cx="90" cy="48" r="9" fill="#1e293b"/>
+        <circle cx="90" cy="48" r="4" fill="#94a3b8"/>
+        <!-- Headlight -->
+        <rect x="108" y="28" width="6" height="8" rx="2" fill="#fde68a"/>
+        <!-- Tail light -->
+        <rect x="6" y="28" width="5" height="8" rx="2" fill="#fca5a5"/>
+      </svg>
+      <div class="road-line"></div>
+    </div>
+
+    <div id="carpool-cars-container"></div>
+
+    <div class="fab-row">
+      <button class="fab" onclick="openAddCar()">+ Add car</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD OVERLAY (shared) -->
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
+    <h3>🔒 Protected</h3>
+    <p>Enter the password to continue</p>
+    <input type="password" id="pw-input" placeholder="••••" maxlength="20"
+      onkeydown="if(event.key==='Enter')checkPassword()" />
+    <button class="pw-btn" onclick="checkPassword()">Unlock</button>
+  </div>
+</div>
+
+<!-- CARPOOL ADD CAR MODAL -->
+<div class="overlay" id="car-modal">
+  <div class="modal">
+    <h3 id="car-modal-title">Add car</h3>
+    <div class="field">
+      <label>Driver name</label>
+      <input type="text" id="car-driver-input" placeholder="e.g. Ozer" />
+    </div>
+    <div class="field">
+      <label>Car label (optional)</label>
+      <input type="text" id="car-label-input" placeholder="e.g. Black Honda, Tesla..." />
+    </div>
+    <div class="field">
+      <label>Seats (excluding driver)</label>
+      <select id="car-seats-input">
+        <option value="1">1 passenger</option>
+        <option value="2">2 passengers</option>
+        <option value="3" selected>3 passengers</option>
+        <option value="4">4 passengers</option>
+        <option value="5">5 passengers</option>
+        <option value="6">6 passengers</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('car-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveCar()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARPOOL SEAT MODAL -->
+<div class="overlay" id="seat-modal">
+  <div class="modal">
+    <h3>Claim a seat</h3>
+    <div class="field">
+      <label>Your name</label>
+      <input type="text" id="seat-name-input" placeholder="e.g. Alex" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('seat-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveSeat()">Save</button>
+    </div>
   </div>
 </div>
 
@@ -967,12 +1212,17 @@ let settings = {};
 let expenses = [];
 let expensePaid = {};
 let extraSlots = { canoe: [], kayak: [], bike: [] };
+let carpoolCars = [];
 let editingItem = null;
 let editingSlotIdx = null;
 let editingBbqOnlyIdx = null;
 let editingBringingIdx = null;
 let editingExpenseIdx = null;
+let editingCarIdx = null;
 let currentExtraSlotType = null;
+let pendingSeatCarIdx = null;
+let pendingSeatSeatIdx = null;
+let pendingPasswordAction = null;
 
 const DEFAULT_SETTINGS = {
   title: 'Saturday · BBQ & Boat 🌊🔥',
@@ -1009,7 +1259,8 @@ const PATHS = {
   settings: 'bbq_saturday/settings',
   expenses: 'bbq_saturday/expenses',
   expensePaid: 'bbq_saturday/expense_paid',
-  extraSlots: 'bbq_saturday/extra_slots'
+  extraSlots: 'bbq_saturday/extra_slots',
+  carpool: 'bbq_saturday/carpool'
 };
 
 // ---- init: load or seed ----
@@ -1082,6 +1333,11 @@ function startListeners() {
       bike:  Array.isArray(raw.bike)  ? raw.bike  : (raw.bike  ? Object.values(raw.bike)  : [])
     };
     renderExtraSlots();
+  });
+  onValue(ref(PATHS.carpool), snap => {
+    const raw = snap.val();
+    carpoolCars = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
+    renderCarpool();
   });
   onValue(ref(PATHS.settings), snap => {
     settings = snap.val() || DEFAULT_SETTINGS;
@@ -1185,7 +1441,7 @@ window.saveSettings = function() {
 
 
 window.switchTab = function(tab) {
-  const tabs = ['plan','list','boat','bringing','expenses','manage'];
+  const tabs = ['plan','list','boat','bringing','expenses','carpool','manage'];
   tabs.forEach((t, i) => {
     document.getElementById('page-' + t).classList.toggle('active', t === tab);
     document.querySelectorAll('.tab')[i].classList.toggle('active', t === tab);
@@ -1521,7 +1777,7 @@ window.closeModal = function(id) {
 };
 
 // close on overlay tap
-['item-modal','slot-modal','bbqonly-modal','bringing-modal','extra-slot-modal','expense-modal','settings-modal'].forEach(id => {
+['item-modal','slot-modal','bbqonly-modal','bringing-modal','extra-slot-modal','expense-modal','car-modal','seat-modal','settings-modal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
@@ -1754,6 +2010,162 @@ window.deleteExpense = function(idx) {
   const arr = [...expenses];
   arr.splice(idx, 1);
   set(ref(PATHS.expenses), arr);
+};
+
+// ---- password protection ----
+const SETTINGS_PASSWORD = 'ozer';
+
+function requirePassword(action) {
+  pendingPasswordAction = action;
+  const inp = document.getElementById('pw-input');
+  inp.value = '';
+  inp.classList.remove('wrong');
+  document.getElementById('pw-overlay').classList.add('open');
+  setTimeout(() => inp.focus(), 100);
+}
+
+window.checkPassword = function() {
+  const val = document.getElementById('pw-input').value;
+  if (val === SETTINGS_PASSWORD) {
+    document.getElementById('pw-overlay').classList.remove('open');
+    if (typeof pendingPasswordAction === 'function') pendingPasswordAction();
+    pendingPasswordAction = null;
+  } else {
+    const inp = document.getElementById('pw-input');
+    inp.classList.add('wrong');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('wrong'), 500);
+  }
+};
+
+document.getElementById('pw-overlay').addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.classList.remove('open');
+    pendingPasswordAction = null;
+  }
+});
+
+// wrap openSettings with password
+const _origOpenSettings = window.openSettings;
+window.openSettings = function() {
+  requirePassword(() => _origOpenSettings());
+};
+
+// ---- carpool ----
+function renderCarpool() {
+  const container = document.getElementById('carpool-cars-container');
+  if (!carpoolCars.length) {
+    container.innerHTML = '<div class="empty-state" style="padding:20px 0 10px;">No cars added yet. Add your car and let people claim seats!</div>';
+    return;
+  }
+  container.innerHTML = carpoolCars.map((car, ci) => {
+    const totalSeats = car.seats || 3;
+    const passengers = car.passengers || [];
+
+    // driver seat
+    let seatsHtml = `<div class="car-seat driver filled" style="flex:0 0 80px;">
+      <span class="car-seat-icon">🧑‍✈️</span>
+      <span class="car-seat-name">${car.driver}</span>
+      <span class="car-seat-label">Driver</span>
+    </div>
+    <div style="width:1px;background:var(--border);align-self:stretch;margin:0 4px;"></div>`;
+
+    // passenger seats
+    for (let i = 0; i < totalSeats; i++) {
+      const p = passengers[i];
+      if (p && p.name) {
+        seatsHtml += `<div class="car-seat filled">
+          <span class="car-seat-icon">🧑</span>
+          <span class="car-seat-name">${p.name}</span>
+          <span class="car-seat-label">Seat ${i+1}</span>
+          <button class="car-seat-del" onclick="removeCarpoolSeat(${ci},${i})">✕</button>
+        </div>`;
+      } else {
+        seatsHtml += `<div class="car-seat" onclick="openClaimSeat(${ci},${i})">
+          <span class="car-seat-icon" style="opacity:0.3;">👤</span>
+          <span class="car-seat-label" style="color:var(--muted);">+ Seat ${i+1}</span>
+        </div>`;
+      }
+    }
+
+    const filledCount = passengers.filter(p => p && p.name).length;
+
+    return `<div class="car-card">
+      <div class="car-card-head">
+        <div>
+          <div class="car-card-title">🚗 ${car.label || car.driver + "'s car"}</div>
+          <div class="car-card-sub">${filledCount} / ${totalSeats} seats taken</div>
+        </div>
+        <div class="car-card-actions">
+          <button class="btn-icon del" onclick="deleteCar(${ci})">🗑</button>
+        </div>
+      </div>
+      <div class="car-interior">
+        <div>
+          <div class="car-row-label">🪟 Front</div>
+          <div class="car-seats-row">${seatsHtml}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.openAddCar = function() {
+  requirePassword(() => {
+    editingCarIdx = null;
+    document.getElementById('car-modal-title').textContent = 'Add car';
+    document.getElementById('car-driver-input').value = '';
+    document.getElementById('car-label-input').value = '';
+    document.getElementById('car-seats-input').value = '3';
+    document.getElementById('car-modal').classList.add('open');
+    setTimeout(() => document.getElementById('car-driver-input').focus(), 100);
+  });
+};
+
+window.saveCar = function() {
+  const driver = document.getElementById('car-driver-input').value.trim();
+  if (!driver) return;
+  const label = document.getElementById('car-label-input').value.trim();
+  const seats = parseInt(document.getElementById('car-seats-input').value);
+  const arr = [...carpoolCars];
+  arr.push({ driver, label, seats, passengers: Array(seats).fill(null) });
+  set(ref(PATHS.carpool), arr);
+  closeModal('car-modal');
+};
+
+window.deleteCar = function(ci) {
+  requirePassword(() => {
+    if (!confirm('Remove ' + (carpoolCars[ci].label || carpoolCars[ci].driver + "'s car") + '?')) return;
+    const arr = [...carpoolCars];
+    arr.splice(ci, 1);
+    set(ref(PATHS.carpool), arr);
+  });
+};
+
+window.openClaimSeat = function(ci, si) {
+  pendingSeatCarIdx = ci;
+  pendingSeatSeatIdx = si;
+  document.getElementById('seat-name-input').value = '';
+  document.getElementById('seat-modal').classList.add('open');
+  setTimeout(() => document.getElementById('seat-name-input').focus(), 100);
+};
+
+window.saveSeat = function() {
+  const name = document.getElementById('seat-name-input').value.trim();
+  if (!name) return;
+  const arr = JSON.parse(JSON.stringify(carpoolCars));
+  if (!arr[pendingSeatCarIdx].passengers) arr[pendingSeatCarIdx].passengers = [];
+  while (arr[pendingSeatCarIdx].passengers.length <= pendingSeatSeatIdx)
+    arr[pendingSeatCarIdx].passengers.push(null);
+  arr[pendingSeatCarIdx].passengers[pendingSeatSeatIdx] = { name };
+  set(ref(PATHS.carpool), arr);
+  closeModal('seat-modal');
+};
+
+window.removeCarpoolSeat = function(ci, si) {
+  const arr = JSON.parse(JSON.stringify(carpoolCars));
+  arr[ci].passengers[si] = null;
+  set(ref(PATHS.carpool), arr);
 };
 
 init();
