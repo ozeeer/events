@@ -184,6 +184,17 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   color: var(--text);
 }
 
+/* pontoon duration picker */
+.pontoon-dur-btn {
+  padding: 6px 12px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+  color: var(--text); cursor: pointer; transition: all 0.15s;
+}
+.pontoon-dur-btn.selected {
+  background: var(--boat); color: white; border-color: var(--boat);
+}
+
 /* ---- BOAT TAB ---- */
 .boat-section { padding: 12px 16px 0; }
 .boat-type-cards { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -536,13 +547,72 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
     <div class="info-card" style="margin: 0 0 12px;" id="boat-info-card"></div>
 
     <p class="section-head" style="padding:0 0 8px;">Main rental — Pontoon</p>
-    <div class="boat-type-cards" style="margin-bottom:14px;">
-      <div class="boat-card selected" id="bcard-pontoon" onclick="selectBoatType('pontoon')" style="flex:1;">
-        <div class="bc-emoji">🛥️</div>
-        <div class="bc-name">Ski & Tube Pontoon</div>
-        <div class="bc-cap">Up to 12 people</div>
-        <div class="bc-price">115 HP · 23 ft</div>
+    <div style="background:var(--card);border:2px solid var(--boat);border-radius:12px;overflow:hidden;margin-bottom:14px;">
+      <div style="padding:12px 14px;background:#f0f5ff;border-bottom:1px solid #c7d7fb;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:14px;font-weight:600;">🛥️ Ski &amp; Tube Pontoon · 115 HP</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">12 persons max</div>
+        </div>
+        <div style="font-size:11px;color:var(--boat);text-align:right;font-weight:500;">
+          1hr $160 · 4hr $420<br>+$105/add. hr · 8hr $625
+        </div>
       </div>
+
+      <!-- Duration picker -->
+      <div style="padding:12px 14px;border-bottom:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500;">Select rental duration</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="pontoon-duration-btns">
+          <button class="pontoon-dur-btn selected" onclick="setPontoonDur(1,160)">1 hr · $160</button>
+          <button class="pontoon-dur-btn" onclick="setPontoonDur(2,265)">2 hrs · $265</button>
+          <button class="pontoon-dur-btn" onclick="setPontoonDur(3,370)">3 hrs · $370</button>
+          <button class="pontoon-dur-btn" onclick="setPontoonDur(4,420)">4 hrs · $420</button>
+          <button class="pontoon-dur-btn" onclick="setPontoonDur(8,625)">8 hrs · $625</button>
+        </div>
+      </div>
+
+      <!-- Gas fee input -->
+      <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div style="font-size:13px;font-weight:500;flex:1;">⛽ Gas fee <span style="font-size:11px;color:var(--muted);font-weight:400;">(added after)</span></div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:13px;color:var(--muted);">$</span>
+          <input type="number" id="pontoon-gas" min="0" step="1" placeholder="0"
+            style="width:72px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);outline:none;text-align:right;"
+            oninput="updatePontoonSplit()" />
+        </div>
+      </div>
+
+      <!-- Per person split -->
+      <div style="padding:12px 14px;" id="pontoon-split-row">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:12px;color:var(--muted);">Rental</span>
+          <span style="font-size:13px;font-weight:500;" id="pontoon-rental-amt">$160.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:12px;color:var(--muted);">Gas</span>
+          <span style="font-size:13px;font-weight:500;" id="pontoon-gas-amt">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
+          <span style="font-size:13px;font-weight:600;">Per person <span style="font-size:11px;font-weight:400;color:var(--muted);" id="pontoon-pax-label">(÷ 12)</span></span>
+          <span style="font-size:18px;font-weight:700;color:var(--boat);" id="pontoon-per-person">$13.33</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="slots-wrap">
+      <div class="slots-head">
+        <span>Boat seats</span>
+        <small id="slots-count">0 / 0 filled</small>
+      </div>
+      <div id="slots-list"></div>
+    </div>
+
+    <p class="section-head" style="padding:0 0 8px;">BBQ only (not joining boat)</p>
+    <div class="bbq-only-wrap">
+      <div class="bbq-only-head">
+        <span>🍗 BBQ only</span>
+        <button class="btn-sm primary" onclick="openAddBbqOnly()">+ Add name</button>
+      </div>
+      <div id="bbq-only-list"><div class="empty-state">No one added yet</div></div>
     </div>
 
     <p class="section-head" style="padding:0 0 8px;">Other rentals · sign up if interested</p>
@@ -570,30 +640,13 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
 
     <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;">
       <div style="padding:10px 14px;background:#faf9f6;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:13px;font-weight:600;">🚴 Single Kayak / Bike <span style="font-weight:400;color:var(--muted);font-size:12px;">(1 person · 240 lbs max)</span></span>
+        <span style="font-size:13px;font-weight:600;">🚣 Single Kayak <span style="font-weight:400;color:var(--muted);font-size:12px;">(1 person · 240 lbs max)</span></span>
         <span style="font-size:11px;color:var(--muted);">1hr $18 · 4hr $40 · 8hr $60</span>
       </div>
       <div id="bike-slots-list"></div>
       <div style="padding:8px 14px;border-top:1px solid var(--border);">
-        <button class="btn-sm primary" onclick="openAddExtraSlot('bike')">+ Join kayak/bike</button>
+        <button class="btn-sm primary" onclick="openAddExtraSlot('bike')">+ Join single kayak</button>
       </div>
-    </div>
-
-    <div class="slots-wrap">
-      <div class="slots-head">
-        <span>Boat seats</span>
-        <small id="slots-count">0 / 0 filled</small>
-      </div>
-      <div id="slots-list"></div>
-    </div>
-
-    <p class="section-head" style="padding:0 0 8px;">BBQ only (not joining boat)</p>
-    <div class="bbq-only-wrap">
-      <div class="bbq-only-head">
-        <span>🍗 BBQ only</span>
-        <button class="btn-sm primary" onclick="openAddBbqOnly()">+ Add name</button>
-      </div>
-      <div id="bbq-only-list"><div class="empty-state">No one added yet</div></div>
     </div>
 
   </div>
@@ -1244,6 +1297,8 @@ function renderSlots() {
     </div>`;
   }
   document.getElementById('slots-list').innerHTML = html;
+  // update pontoon split whenever headcount changes
+  if (typeof updatePontoonSplit === 'function') updatePontoonSplit();
 }
 
 window.openEditSlot = function(idx) {
@@ -1484,8 +1539,30 @@ window.closeModal = function(id) {
   });
 });
 
+// ---- pontoon price split ----
+let pontoonRentalCost = 160;
+
+window.setPontoonDur = function(hrs, cost) {
+  pontoonRentalCost = cost;
+  document.querySelectorAll('.pontoon-dur-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  updatePontoonSplit();
+};
+
+window.updatePontoonSplit = function() {
+  const gas = parseFloat(document.getElementById('pontoon-gas').value) || 0;
+  const filledCount = slots.filter(s => s && s.name).length;
+  const pax = filledCount > 0 ? filledCount : 12;
+  const total = pontoonRentalCost + gas;
+  const perPerson = total / pax;
+  document.getElementById('pontoon-rental-amt').textContent = '$' + pontoonRentalCost.toFixed(2);
+  document.getElementById('pontoon-gas-amt').textContent = '$' + gas.toFixed(2);
+  document.getElementById('pontoon-per-person').textContent = '$' + perPerson.toFixed(2);
+  document.getElementById('pontoon-pax-label').textContent = '÷ ' + pax + ' people';
+};
+
 // ---- extra rentals (canoe / kayak / bike) ----
-const EXTRA_LABELS = { canoe: '🛶 Canoe', kayak: '🏄 Kayak/Paddle Board', bike: '🚴 Kayak/Bike' };
+const EXTRA_LABELS = { canoe: '🛶 Canoe', kayak: '🏄 Kayak/Paddle Board', bike: '🚣 Single Kayak' };
 
 function renderExtraSlots() {
   ['canoe','kayak','bike'].forEach(type => {
