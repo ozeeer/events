@@ -344,26 +344,7 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   border-radius: 10px; padding: 10px 14px;
   font-size: 12px; color: #166534; line-height: 1.6;
 }
-.exp-item {
-  display:flex;align-items:center;gap:10px;
-  padding:11px 14px;border-bottom:1px solid var(--border);
-}
-.exp-item:last-child{border-bottom:none;}
-.exp-info{flex:1;min-width:0;}
-.exp-name{font-size:14px;font-weight:500;}
-.exp-meta{font-size:11px;color:var(--muted);margin-top:2px;}
-.exp-amount{font-size:15px;font-weight:600;flex-shrink:0;}
-.summary-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;border-bottom:1px solid var(--border);
-}
-.summary-row:last-child{border-bottom:none;}
-.summary-name{font-size:13px;font-weight:500;}
-.summary-detail{font-size:11px;color:var(--muted);margin-top:2px;}
-.summary-owes{font-size:13px;font-weight:600;color:var(--danger);}
-.summary-paid{font-size:13px;font-weight:600;color:var(--check);}
-.settled-strike { text-decoration: line-through; }
-
+.empty-state {
   padding: 20px 14px; text-align: center;
   font-size: 13px; color: var(--muted);
 }
@@ -386,7 +367,6 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   <button class="tab" onclick="switchTab('list')">🛒 Shopping</button>
   <button class="tab" onclick="switchTab('boat')">⛵ Boat</button>
   <button class="tab" onclick="switchTab('bringing')">🧺 Bringing</button>
-  <button class="tab" onclick="switchTab('expense')">💰 Expenses</button>
   <button class="tab" onclick="switchTab('manage')">⚙️ Manage</button>
 </div>
 
@@ -503,63 +483,7 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   </div>
 </div>
 
-<!-- ===== EXPENSE TAB ===== -->
-<div class="page" id="page-expense">
-  <div style="padding:12px 16px 0;">
-
-    <!-- Summary card -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
-      <div style="padding:11px 14px;background:#faf9f6;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:13px;font-weight:600;">💰 Summary</span>
-        <span id="exp-total-label" style="font-size:13px;font-weight:600;color:var(--check);">$0.00 total</span>
-      </div>
-      <div id="exp-summary-list"><div class="empty-state">Add expenses to see the breakdown</div></div>
-    </div>
-
-    <!-- Expenses list -->
-    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">Expenses</div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
-      <div id="exp-list"><div class="empty-state">No expenses yet</div></div>
-    </div>
-
-    <div class="fab-row">
-      <button class="fab" onclick="openAddExpense()">+ Add expense</button>
-    </div>
-  </div>
-</div>
-
-<!-- EXPENSE MODAL -->
-<div class="overlay" id="expense-modal">
-  <div class="modal" style="max-height:85vh;overflow-y:auto;">
-    <h3 id="exp-modal-title">Add expense</h3>
-    <div class="field">
-      <label>Paid by</label>
-      <input type="text" id="exp-paidby" placeholder="e.g. Ozer" />
-    </div>
-    <div class="field">
-      <label>Description</label>
-      <input type="text" id="exp-desc" placeholder="e.g. Sam's Club, Boat rental" />
-    </div>
-    <div class="field">
-      <label>Amount ($)</label>
-      <input type="number" id="exp-amount" placeholder="0.00" step="0.01" min="0" />
-    </div>
-    <div class="field">
-      <label>Split between</label>
-      <select id="exp-split">
-        <option value="all">Everyone (boat + BBQ-only)</option>
-        <option value="boat">Boat people only</option>
-        <option value="bbqonly">BBQ-only people</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('expense-modal')">Cancel</button>
-      <button class="btn-save" onclick="saveExpense()">Save</button>
-    </div>
-  </div>
-</div>
-
-
+<!-- ===== MANAGE TAB ===== -->
 <div class="page" id="page-manage">
   <div class="manage-section">
     <div id="manage-container"></div>
@@ -709,8 +633,8 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
 </div>
 
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
 
 const firebaseConfig = {
@@ -727,7 +651,11 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-function dbRef(path) { return db.ref(path); }
+function ref(path) { return db.ref(path); }
+function set(r, val) { return r.set(val); }
+function get(r) { return r.get(); }
+function onValue(r, cb) { r.on('value', snap => cb(snap)); }
+function update(r, val) { return r.update(val); }
 
 // ---- seed data from phone export ----
 const SEED_DATA = [
@@ -786,13 +714,11 @@ let boatType = 'pontoon';
 let slots = [];
 let bbqOnly = [];
 let bringing = [];
-let expenses = [];
-let settled = {};
 let settings = {};
 let editingItem = null;
 let editingSlotIdx = null;
 let editingBbqOnlyIdx = null;
-let editingExpenseIdx = null;
+let editingBringingIdx = null;
 
 const DEFAULT_SETTINGS = {
   title: 'Saturday · BBQ & Boat 🌊🔥',
@@ -826,15 +752,23 @@ const PATHS = {
   slots: 'bbq_saturday/slots',
   bbqOnly: 'bbq_saturday/bbq_only',
   bringing: 'bbq_saturday/bringing',
-  settings: 'bbq_saturday/settings',
-  expenses: 'bbq_saturday/expenses',
-  settled: 'bbq_saturday/settled'
+  settings: 'bbq_saturday/settings'
 };
 
 // ---- init: load or seed ----
 async function init() {
   setSyncStatus('loading', 'Loading...');
   try {
+    const snap = await db.ref('bbq_saturday').once('value');
+    if (!snap.exists()) {
+      // seed
+      await set(ref(PATHS.shopData), SEED_DATA);
+      await set(ref(PATHS.checked), {});
+      await set(ref(PATHS.boatType), 'pontoon');
+      await set(ref(PATHS.slots), Array(12).fill(null).map(() => ({ name: '' })));
+      await set(ref(PATHS.bbqOnly), []);
+      await set(ref(PATHS.settings), DEFAULT_SETTINGS);
+    }
     startListeners();
     setSyncStatus('ok', 'Live · syncing with Firebase');
   } catch(e) {
@@ -843,57 +777,40 @@ async function init() {
 }
 
 function startListeners() {
-  db.ref('.info/connected').on('value', snap => {
-    if (snap.val()) setSyncStatus('ok', 'Live · syncing with Firebase');
-    else setSyncStatus('loading', 'Reconnecting...');
-  });
-  db.ref(PATHS.shopData).on('value', snap => {
-    shopData = snap.val() || [];
-    if (!snap.val()) db.ref(PATHS.shopData).set(SEED_DATA);
+  onValue(ref(PATHS.shopData), snap => {
+    shopData = snap.val() || SEED_DATA;
     renderList();
     updateProgress();
     renderManage();
   });
-  db.ref(PATHS.checked).on('value', snap => {
+  onValue(ref(PATHS.checked), snap => {
     checked = snap.val() || {};
     renderList();
     updateProgress();
   });
-  db.ref(PATHS.boatType).on('value', snap => {
+  onValue(ref(PATHS.boatType), snap => {
     boatType = snap.val() || 'pontoon';
     renderBoatTypeCards();
     renderSlots();
   });
-  db.ref(PATHS.slots).on('value', snap => {
+  onValue(ref(PATHS.slots), snap => {
     const raw = snap.val();
     slots = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
-    if (!raw) db.ref(PATHS.slots).set(Array(12).fill(null).map(() => ({ name: '' })));
     renderSlots();
-    renderExpenses();
   });
-  db.ref(PATHS.bbqOnly).on('value', snap => {
+  onValue(ref(PATHS.bbqOnly), snap => {
     const raw = snap.val();
     bbqOnly = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
     renderBbqOnly();
-    renderExpenses();
   });
-  db.ref(PATHS.bringing).on('value', snap => {
+  onValue(ref(PATHS.bringing), snap => {
     const raw = snap.val();
     bringing = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
     renderBringing();
   });
-  db.ref(PATHS.settings).on('value', snap => {
+  onValue(ref(PATHS.settings), snap => {
     settings = snap.val() || DEFAULT_SETTINGS;
     applySettings();
-  });
-  db.ref(PATHS.expenses).on('value', snap => {
-    const raw = snap.val();
-    expenses = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
-    renderExpenses();
-  });
-  db.ref(PATHS.settled).on('value', snap => {
-    settled = snap.val() || {};
-    renderExpenses();
   });
 }
 
@@ -987,13 +904,13 @@ window.saveSettings = function() {
     tip: document.getElementById('s-tip').value.trim() || DEFAULT_SETTINGS.tip,
     expense: document.getElementById('s-expense').value.trim() || DEFAULT_SETTINGS.expense,
   };
-  db.ref(PATHS.settings).set(updated);
+  set(ref(PATHS.settings), updated);
   closeModal('settings-modal');
 };
 
 
 window.switchTab = function(tab) {
-  const tabs = ['plan','list','boat','bringing','expense','manage'];
+  const tabs = ['plan','list','boat','bringing','manage'];
   tabs.forEach((t, i) => {
     document.getElementById('page-' + t).classList.toggle('active', t === tab);
     document.querySelectorAll('.tab')[i].classList.toggle('active', t === tab);
@@ -1048,12 +965,12 @@ function updateProgress() {
 window.toggleCheck = function(ci, ii) {
   const id = ci + '_' + ii;
   const newVal = !checked[id];
-  db.ref(PATHS.checked).update({ [id]: newVal });
+  ref(PATHS.checked).update({ [id]: newVal });
 };
 
 window.resetChecks = function() {
   if (!confirm('Reset all checkmarks?')) return;
-  db.ref(PATHS.checked).set({});
+  set(ref(PATHS.checked), {});
 };
 
 window.exportData = function() {
@@ -1072,8 +989,8 @@ window.selectBoatType = function(type) {
   if (type === boatType) return;
   if (!confirm('Switch boat type? This will resize the slots list.')) return;
   const newSlots = Array(cap).fill(null).map((_, i) => ({ name: slots[i] ? slots[i].name : '' }));
-  db.ref(PATHS.boatType).set(type);
-  db.ref(PATHS.slots).set(newSlots);
+  set(ref(PATHS.boatType), type);
+  set(ref(PATHS.slots), newSlots);
 };
 
 function renderBoatTypeCards() {
@@ -1116,7 +1033,7 @@ window.saveSlot = function() {
   const newSlots = [...slots];
   while (newSlots.length <= editingSlotIdx) newSlots.push({ name: '' });
   newSlots[editingSlotIdx] = { name };
-  db.ref(PATHS.slots).set(newSlots);
+  set(ref(PATHS.slots), newSlots);
   closeModal('slot-modal');
 };
 
@@ -1124,7 +1041,7 @@ window.clearSlot = function(idx) {
   if (!confirm('Remove ' + (slots[idx] && slots[idx].name) + ' from boat?')) return;
   const newSlots = [...slots];
   newSlots[idx] = { name: '' };
-  db.ref(PATHS.slots).set(newSlots);
+  set(ref(PATHS.slots), newSlots);
 };
 
 // bbq only
@@ -1158,14 +1075,14 @@ window.saveBbqOnly = function() {
   const arr = [...bbqOnly];
   if (editingBbqOnlyIdx !== null) arr[editingBbqOnlyIdx] = { name };
   else arr.push({ name });
-  db.ref(PATHS.bbqOnly).set(arr);
+  set(ref(PATHS.bbqOnly), arr);
   closeModal('bbqonly-modal');
 };
 window.deleteBbqOnly = function(idx) {
   if (!confirm('Remove ' + bbqOnly[idx].name + '?')) return;
   const arr = [...bbqOnly];
   arr.splice(idx, 1);
-  db.ref(PATHS.bbqOnly).set(arr);
+  set(ref(PATHS.bbqOnly), arr);
 };
 
 // ---- bringing ----
@@ -1207,14 +1124,14 @@ window.saveBringing = function() {
   const arr = [...bringing];
   if (editingBringingIdx !== null) arr[editingBringingIdx] = { name, what };
   else arr.push({ name, what });
-  db.ref(PATHS.bringing).set(arr);
+  set(ref(PATHS.bringing), arr);
   closeModal('bringing-modal');
 };
 window.deleteBringing = function(idx) {
   if (!confirm('Remove entry?')) return;
   const arr = [...bringing];
   arr.splice(idx, 1);
-  db.ref(PATHS.bringing).set(arr);
+  set(ref(PATHS.bringing), arr);
 };
 
 // ---- manage / edit items ----
@@ -1297,8 +1214,8 @@ window.saveItem = function() {
   } else {
     newData[catIdx].items.push({ name, qty, tag });
   }
-  db.ref(PATHS.shopData).set(newData);
-  db.ref(PATHS.checked).set({});
+  set(ref(PATHS.shopData), newData);
+  set(ref(PATHS.checked), {});
   closeModal('item-modal');
 };
 
@@ -1306,16 +1223,16 @@ window.deleteItem = function(catIdx, itemIdx) {
   if (!confirm('Delete "' + shopData[catIdx].items[itemIdx].name + '"?')) return;
   const newData = JSON.parse(JSON.stringify(shopData));
   newData[catIdx].items.splice(itemIdx, 1);
-  db.ref(PATHS.shopData).set(newData);
-  db.ref(PATHS.checked).set({});
+  set(ref(PATHS.shopData), newData);
+  set(ref(PATHS.checked), {});
 };
 
 window.deleteCategory = function(catIdx) {
   if (!confirm('Delete category "' + shopData[catIdx].cat + '" and all its items?')) return;
   const newData = JSON.parse(JSON.stringify(shopData));
   newData.splice(catIdx, 1);
-  db.ref(PATHS.shopData).set(newData);
-  db.ref(PATHS.checked).set({});
+  set(ref(PATHS.shopData), newData);
+  set(ref(PATHS.checked), {});
 };
 
 window.addCategory = function() {
@@ -1324,7 +1241,7 @@ window.addCategory = function() {
   if (!name) return;
   const newData = JSON.parse(JSON.stringify(shopData));
   newData.push({ cat: name, items: [] });
-  db.ref(PATHS.shopData).set(newData);
+  set(ref(PATHS.shopData), newData);
   input.value = '';
 };
 
@@ -1333,165 +1250,13 @@ window.closeModal = function(id) {
 };
 
 // close on overlay tap
-['item-modal','slot-modal','bbqonly-modal','bringing-modal','settings-modal','expense-modal'].forEach(id => {
+['item-modal','slot-modal','bbqonly-modal','bringing-modal','settings-modal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
 });
 
-// ---- expenses ----
-function getAllPeople() {
-  const boatNames = slots.filter(s => s && s.name).map(s => s.name);
-  const bbqNames = bbqOnly.map(p => p.name);
-  const all = [...new Set([...boatNames, ...bbqNames])];
-  return { boatNames, bbqNames, all };
-}
-
-function getPeopleForSplit(splitType) {
-  const { boatNames, bbqNames, all } = getAllPeople();
-  if (splitType === 'boat') return boatNames;
-  if (splitType === 'bbqonly') return bbqNames;
-  return all; // 'all'
-}
-
-function renderExpenses() {
-  const list = document.getElementById('exp-list');
-  const splitLabel = { all: 'Everyone', boat: 'Boat only', bbqonly: 'BBQ-only' };
-
-  if (!expenses.length) {
-    list.innerHTML = '<div class="empty-state">No expenses yet</div>';
-    document.getElementById('exp-total-label').textContent = '$0.00 total';
-    document.getElementById('exp-summary-list').innerHTML = '<div class="empty-state">Add expenses to see the breakdown</div>';
-    return;
-  }
-
-  list.innerHTML = expenses.map((e, i) => `
-    <div class="exp-item">
-      <div class="exp-info">
-        <div class="exp-name">${e.desc}</div>
-        <div class="exp-meta">Paid by <strong>${e.paidBy}</strong> · ${splitLabel[e.split] || e.split}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="exp-amount">$${parseFloat(e.amount).toFixed(2)}</span>
-        <button class="btn-icon" onclick="openEditExpense(${i})">✏️</button>
-        <button class="btn-icon del" onclick="deleteExpense(${i})">🗑</button>
-      </div>
-    </div>`).join('');
-
-  // total
-  const total = expenses.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  document.getElementById('exp-total-label').textContent = '$' + total.toFixed(2) + ' total';
-
-  // build per-person ledger
-  const ledger = {}; // name -> { paid, owes }
-  const { all } = getAllPeople();
-  all.forEach(n => { ledger[n] = { paid: 0, owes: 0 }; });
-
-  expenses.forEach(e => {
-    const payer = e.paidBy.trim();
-    const amt = parseFloat(e.amount || 0);
-    const people = getPeopleForSplit(e.split).filter(p => p);
-    if (!people.length) return;
-    const share = amt / people.length;
-
-    if (!ledger[payer]) ledger[payer] = { paid: 0, owes: 0 };
-    ledger[payer].paid += amt;
-
-    people.forEach(p => {
-      if (!ledger[p]) ledger[p] = { paid: 0, owes: 0 };
-      ledger[p].owes += share;
-    });
-  });
-
-  const names = Object.keys(ledger).sort();
-  if (!names.length) {
-    document.getElementById('exp-summary-list').innerHTML = '<div class="empty-state">Add people to boat/BBQ list first</div>';
-    return;
-  }
-
-  document.getElementById('exp-summary-list').innerHTML = names.map(name => {
-    const { paid, owes } = ledger[name];
-    const net = owes - paid;
-    const isSettled = !!settled[name];
-    let statusHtml;
-    if (Math.abs(net) < 0.01) {
-      statusHtml = `<span class="summary-even">All even ✓</span>`;
-    } else if (net > 0) {
-      statusHtml = `<span class="summary-owes${isSettled ? ' settled-strike' : ''}">Owes $${net.toFixed(2)}</span>`;
-    } else {
-      statusHtml = `<span class="summary-paid">Gets back $${Math.abs(net).toFixed(2)}</span>`;
-    }
-    // only show settle button for people who owe money
-    const settleBtn = net > 0.01 ? `
-      <button onclick="toggleSettled('${name}')" style="
-        margin-left:8px;
-        width:28px;height:28px;border-radius:50%;border:1.5px solid ${isSettled ? 'var(--check)' : 'var(--border)'};
-        background:${isSettled ? 'var(--check)' : 'var(--bg)'};
-        display:inline-flex;align-items:center;justify-content:center;
-        cursor:pointer;font-size:13px;flex-shrink:0;
-      " title="${isSettled ? 'Mark as unpaid' : 'Mark as paid'}">${isSettled ? '✓' : ''}</button>` : '';
-    return `<div class="summary-row" style="${isSettled ? 'opacity:0.5;' : ''}">
-      <div>
-        <div class="summary-name">${name}${isSettled ? ' <span style="font-size:10px;color:var(--check);font-weight:600;">PAID</span>' : ''}</div>
-        <div class="summary-detail">Paid $${paid.toFixed(2)} · Share $${owes.toFixed(2)}</div>
-      </div>
-      <div style="display:flex;align-items:center;">
-        ${statusHtml}
-        ${settleBtn}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-window.toggleSettled = function(name) {
-  const newVal = !settled[name];
-  db.ref(PATHS.settled).update({ [name]: newVal });
-};
-
-
-  editingExpenseIdx = null;
-  document.getElementById('exp-modal-title').textContent = 'Add expense';
-  document.getElementById('exp-paidby').value = '';
-  document.getElementById('exp-desc').value = '';
-  document.getElementById('exp-amount').value = '';
-  document.getElementById('exp-split').value = 'all';
-  document.getElementById('expense-modal').classList.add('open');
-  setTimeout(() => document.getElementById('exp-paidby').focus(), 100);
-};
-
-window.openEditExpense = function(idx) {
-  editingExpenseIdx = idx;
-  const e = expenses[idx];
-  document.getElementById('exp-modal-title').textContent = 'Edit expense';
-  document.getElementById('exp-paidby').value = e.paidBy;
-  document.getElementById('exp-desc').value = e.desc;
-  document.getElementById('exp-amount').value = e.amount;
-  document.getElementById('exp-split').value = e.split;
-  document.getElementById('expense-modal').classList.add('open');
-};
-
-window.saveExpense = function() {
-  const paidBy = document.getElementById('exp-paidby').value.trim();
-  const desc = document.getElementById('exp-desc').value.trim();
-  const amount = parseFloat(document.getElementById('exp-amount').value);
-  const split = document.getElementById('exp-split').value;
-  if (!paidBy || !desc || isNaN(amount) || amount <= 0) return;
-  const arr = [...expenses];
-  const entry = { paidBy, desc, amount, split };
-  if (editingExpenseIdx !== null) arr[editingExpenseIdx] = entry;
-  else arr.push(entry);
-  db.ref(PATHS.expenses).set(arr);
-  closeModal('expense-modal');
-};
-
-window.deleteExpense = function(idx) {
-  if (!confirm('Delete "' + expenses[idx].desc + '"?')) return;
-  const arr = [...expenses];
-  arr.splice(idx, 1);
-  db.ref(PATHS.expenses).set(arr);
-};
-
-
+init();
 </script>
 </body>
 </html>
