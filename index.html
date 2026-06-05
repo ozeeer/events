@@ -551,22 +551,10 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
       <div style="padding:12px 14px;background:#f0f5ff;border-bottom:1px solid #c7d7fb;display:flex;justify-content:space-between;align-items:center;">
         <div>
           <div style="font-size:14px;font-weight:600;">🛥️ Ski &amp; Tube Pontoon · 115 HP</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px;">12 persons max</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">12 persons max · 2 hour rental</div>
         </div>
         <div style="font-size:11px;color:var(--boat);text-align:right;font-weight:500;">
-          1hr $160 · 4hr $420<br>+$105/add. hr · 8hr $625
-        </div>
-      </div>
-
-      <!-- Duration picker -->
-      <div style="padding:12px 14px;border-bottom:1px solid var(--border);">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500;">Select rental duration</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="pontoon-duration-btns">
-          <button class="pontoon-dur-btn selected" onclick="setPontoonDur(1,160)">1 hr · $160</button>
-          <button class="pontoon-dur-btn" onclick="setPontoonDur(2,265)">2 hrs · $265</button>
-          <button class="pontoon-dur-btn" onclick="setPontoonDur(3,370)">3 hrs · $370</button>
-          <button class="pontoon-dur-btn" onclick="setPontoonDur(4,420)">4 hrs · $420</button>
-          <button class="pontoon-dur-btn" onclick="setPontoonDur(8,625)">8 hrs · $625</button>
+          Paid by Ozer ✓
         </div>
       </div>
 
@@ -582,18 +570,18 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
       </div>
 
       <!-- Per person split -->
-      <div style="padding:12px 14px;" id="pontoon-split-row">
+      <div style="padding:12px 14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <span style="font-size:12px;color:var(--muted);">Rental</span>
-          <span style="font-size:13px;font-weight:500;" id="pontoon-rental-amt">$160.00</span>
+          <span style="font-size:12px;color:var(--muted);">Rental (paid)</span>
+          <span style="font-size:13px;font-weight:500;">$280.90</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
           <span style="font-size:12px;color:var(--muted);">Gas</span>
-          <span style="font-size:13px;font-weight:500;" id="pontoon-gas-amt">$0.00</span>
+          <span style="font-size:13px;font-weight:500;" id="pontoon-gas-amt">TBD</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
           <span style="font-size:13px;font-weight:600;">Per person <span style="font-size:11px;font-weight:400;color:var(--muted);" id="pontoon-pax-label">(÷ 12)</span></span>
-          <span style="font-size:18px;font-weight:700;color:var(--boat);" id="pontoon-per-person">$13.33</span>
+          <span style="font-size:18px;font-weight:700;color:var(--boat);" id="pontoon-per-person">$23.41</span>
         </div>
       </div>
     </div>
@@ -1540,25 +1528,22 @@ window.closeModal = function(id) {
 });
 
 // ---- pontoon price split ----
-let pontoonRentalCost = 160;
+const PONTOON_RENTAL = 280.90;
 
-window.setPontoonDur = function(hrs, cost) {
-  pontoonRentalCost = cost;
-  document.querySelectorAll('.pontoon-dur-btn').forEach(b => b.classList.remove('selected'));
-  event.target.classList.add('selected');
-  updatePontoonSplit();
-};
+window.setPontoonDur = function(hrs, cost) {}; // no-op, duration is fixed
 
 window.updatePontoonSplit = function() {
   const gas = parseFloat(document.getElementById('pontoon-gas').value) || 0;
   const filledCount = slots.filter(s => s && s.name).length;
   const pax = filledCount > 0 ? filledCount : 12;
-  const total = pontoonRentalCost + gas;
+  const total = PONTOON_RENTAL + gas;
   const perPerson = total / pax;
-  document.getElementById('pontoon-rental-amt').textContent = '$' + pontoonRentalCost.toFixed(2);
-  document.getElementById('pontoon-gas-amt').textContent = '$' + gas.toFixed(2);
-  document.getElementById('pontoon-per-person').textContent = '$' + perPerson.toFixed(2);
-  document.getElementById('pontoon-pax-label').textContent = '÷ ' + pax + ' people';
+  const gasEl = document.getElementById('pontoon-gas-amt');
+  if (gasEl) gasEl.textContent = gas > 0 ? '$' + gas.toFixed(2) : 'TBD';
+  const ppEl = document.getElementById('pontoon-per-person');
+  if (ppEl) ppEl.textContent = '$' + perPerson.toFixed(2);
+  const lbl = document.getElementById('pontoon-pax-label');
+  if (lbl) lbl.textContent = '÷ ' + pax + ' people';
 };
 
 // ---- extra rentals (canoe / kayak / bike) ----
