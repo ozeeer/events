@@ -348,6 +348,108 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   padding: 20px 14px; text-align: center;
   font-size: 13px; color: var(--muted);
 }
+
+/* ---- EXPENSES TAB ---- */
+.expense-section { padding: 12px 16px 0; }
+
+.expense-summary-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; margin-bottom: 12px;
+}
+.expense-summary-head {
+  padding: 11px 14px; background: #faf9f6;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.expense-summary-head span { font-size: 13px; font-weight: 600; }
+
+.expense-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.expense-total-row:last-child { border-bottom: none; }
+.expense-total-row .etl { color: var(--muted); }
+.expense-total-row .etr { font-weight: 600; }
+.expense-total-row .etr.boat { color: var(--boat); }
+.expense-total-row .etr.fire { color: var(--fire); }
+.expense-total-row .etr.big { font-size: 16px; }
+
+.expense-list-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; margin-bottom: 12px;
+}
+.expense-list-head {
+  padding: 11px 14px; background: #faf9f6;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.expense-list-head span { font-size: 13px; font-weight: 600; }
+
+.expense-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+}
+.expense-item:last-child { border-bottom: none; }
+.expense-item-info { flex: 1; min-width: 0; }
+.expense-item-desc { font-size: 14px; font-weight: 500; }
+.expense-item-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.expense-item-amount { font-size: 15px; font-weight: 600; flex-shrink: 0; }
+.expense-split-tag {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 99px; flex-shrink: 0;
+}
+.expense-split-tag.boat { background: #eef2ff; color: var(--boat); }
+.expense-split-tag.all { background: #fff8f0; color: var(--fire); }
+
+/* per-person breakdown */
+.person-breakdown-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; margin-bottom: 12px;
+}
+.person-breakdown-head {
+  padding: 11px 14px; background: #faf9f6;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.person-breakdown-head span { font-size: 13px; font-weight: 600; }
+.person-row {
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.person-row:last-child { border-bottom: none; }
+.person-row-top {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.person-row-name { font-size: 14px; font-weight: 500; }
+.person-row-total { font-size: 14px; font-weight: 600; }
+.person-row-detail { font-size: 11px; color: var(--muted); line-height: 1.6; }
+.person-paid-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 4px;
+}
+.person-paid-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 10px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.person-paid-btn.paid {
+  background: #f0fdf4; border-color: #86efac; color: var(--check);
+}
+.person-paid-check {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.person-paid-check.checked::after {
+  content: '';
+  display: block; width: 6px; height: 4px;
+  border-left: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg) translate(0.5px, -0.5px);
+}
 </style>
 </head>
 <body>
@@ -367,6 +469,7 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
   <button class="tab" onclick="switchTab('list')">🛒 Shopping</button>
   <button class="tab" onclick="switchTab('boat')">⛵ Boat</button>
   <button class="tab" onclick="switchTab('bringing')">🧺 Bringing</button>
+  <button class="tab" onclick="switchTab('expenses')">💰 Expenses</button>
   <button class="tab" onclick="switchTab('manage')">⚙️ Manage</button>
 </div>
 
@@ -432,19 +535,47 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
 
     <div class="info-card" style="margin: 0 0 12px;" id="boat-info-card"></div>
 
-    <p class="section-head" style="padding:0 0 8px;">Choose boat type</p>
-    <div class="boat-type-cards">
-      <div class="boat-card" id="bcard-pontoon" onclick="selectBoatType('pontoon')">
+    <p class="section-head" style="padding:0 0 8px;">Main rental — Pontoon</p>
+    <div class="boat-type-cards" style="margin-bottom:14px;">
+      <div class="boat-card selected" id="bcard-pontoon" onclick="selectBoatType('pontoon')" style="flex:1;">
         <div class="bc-emoji">🛥️</div>
         <div class="bc-name">Ski & Tube Pontoon</div>
         <div class="bc-cap">Up to 12 people</div>
         <div class="bc-price">115 HP · 23 ft</div>
       </div>
-      <div class="boat-card" id="bcard-skiboat" onclick="selectBoatType('skiboat')">
-        <div class="bc-emoji">⛵</div>
-        <div class="bc-name">Ski Boat</div>
-        <div class="bc-cap">Up to 8 people</div>
-        <div class="bc-price">115 HP · 19 ft</div>
+    </div>
+
+    <p class="section-head" style="padding:0 0 8px;">Other rentals · sign up if interested</p>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;">
+      <div style="padding:10px 14px;background:#faf9f6;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;font-weight:600;">🛶 Canoe <span style="font-weight:400;color:var(--muted);font-size:12px;">(2 person max)</span></span>
+        <span style="font-size:11px;color:var(--muted);">1hr $32 · 4hr $65 · 8hr $100</span>
+      </div>
+      <div id="canoe-slots-list"></div>
+      <div style="padding:8px 14px;border-top:1px solid var(--border);">
+        <button class="btn-sm primary" onclick="openAddExtraSlot('canoe')">+ Join canoe</button>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;">
+      <div style="padding:10px 14px;background:#faf9f6;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;font-weight:600;">🏄 Tandem Kayak / Paddle Board <span style="font-weight:400;color:var(--muted);font-size:12px;">(2/1 person)</span></span>
+        <span style="font-size:11px;color:var(--muted);">1hr $26 · 4hr $55 · 8hr $80</span>
+      </div>
+      <div id="kayak-slots-list"></div>
+      <div style="padding:8px 14px;border-top:1px solid var(--border);">
+        <button class="btn-sm primary" onclick="openAddExtraSlot('kayak')">+ Join kayak/paddleboard</button>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;">
+      <div style="padding:10px 14px;background:#faf9f6;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;font-weight:600;">🚴 Single Kayak / Bike <span style="font-weight:400;color:var(--muted);font-size:12px;">(1 person · 240 lbs max)</span></span>
+        <span style="font-size:11px;color:var(--muted);">1hr $18 · 4hr $40 · 8hr $60</span>
+      </div>
+      <div id="bike-slots-list"></div>
+      <div style="padding:8px 14px;border-top:1px solid var(--border);">
+        <button class="btn-sm primary" onclick="openAddExtraSlot('bike')">+ Join kayak/bike</button>
       </div>
     </div>
 
@@ -480,6 +611,38 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
     <div class="fab-row">
       <button class="fab" onclick="openAddBringing()">+ Add what I'm bringing</button>
     </div>
+  </div>
+</div>
+
+<!-- ===== EXPENSES TAB ===== -->
+<div class="page" id="page-expenses">
+  <div class="expense-section">
+
+    <!-- Summary totals -->
+    <div class="expense-summary-card" id="expense-summary-card">
+      <div class="expense-summary-head">
+        <span>💰 Total breakdown</span>
+      </div>
+      <div id="expense-summary-rows"><div class="empty-state">No expenses yet</div></div>
+    </div>
+
+    <!-- Per-person breakdown -->
+    <div class="person-breakdown-card" id="person-breakdown-card" style="display:none;">
+      <div class="person-breakdown-head">
+        <span>🧾 Who owes what</span>
+      </div>
+      <div id="person-breakdown-rows"></div>
+    </div>
+
+    <!-- Expense list -->
+    <div class="expense-list-card">
+      <div class="expense-list-head">
+        <span>📋 Expenses</span>
+        <button class="btn-sm primary" onclick="openAddExpense()">+ Add</button>
+      </div>
+      <div id="expense-items-list"><div class="empty-state">No expenses added yet</div></div>
+    </div>
+
   </div>
 </div>
 
@@ -571,6 +734,51 @@ header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('bringing-modal')">Cancel</button>
       <button class="btn-save" onclick="saveBringing()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXTRA RENTAL SLOT MODAL -->
+<div class="overlay" id="extra-slot-modal">
+  <div class="modal">
+    <h3 id="extra-slot-modal-title">Sign up</h3>
+    <div class="field">
+      <label>Your name</label>
+      <input type="text" id="extra-slot-name-input" placeholder="e.g. Alex" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('extra-slot-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveExtraSlot()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="overlay" id="expense-modal">
+  <div class="modal">
+    <h3 id="expense-modal-title">Add expense</h3>
+    <div class="field">
+      <label>Paid by</label>
+      <input type="text" id="exp-paidby" placeholder="e.g. Ozer" />
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <input type="text" id="exp-desc" placeholder="e.g. Boat rental, Sam's Club run..." />
+    </div>
+    <div class="field">
+      <label>Amount ($)</label>
+      <input type="number" id="exp-amount" placeholder="0.00" step="0.01" min="0" />
+    </div>
+    <div class="field">
+      <label>Split between</label>
+      <select id="exp-split">
+        <option value="all">Everyone (boat + BBQ-only)</option>
+        <option value="boat">Boat people only</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('expense-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveExpense()">Save</button>
     </div>
   </div>
 </div>
@@ -715,10 +923,15 @@ let slots = [];
 let bbqOnly = [];
 let bringing = [];
 let settings = {};
+let expenses = [];
+let expensePaid = {};
+let extraSlots = { canoe: [], kayak: [], bike: [] };
 let editingItem = null;
 let editingSlotIdx = null;
 let editingBbqOnlyIdx = null;
 let editingBringingIdx = null;
+let editingExpenseIdx = null;
+let currentExtraSlotType = null;
 
 const DEFAULT_SETTINGS = {
   title: 'Saturday · BBQ & Boat 🌊🔥',
@@ -752,7 +965,10 @@ const PATHS = {
   slots: 'bbq_saturday/slots',
   bbqOnly: 'bbq_saturday/bbq_only',
   bringing: 'bbq_saturday/bringing',
-  settings: 'bbq_saturday/settings'
+  settings: 'bbq_saturday/settings',
+  expenses: 'bbq_saturday/expenses',
+  expensePaid: 'bbq_saturday/expense_paid',
+  extraSlots: 'bbq_saturday/extra_slots'
 };
 
 // ---- init: load or seed ----
@@ -807,6 +1023,24 @@ function startListeners() {
     const raw = snap.val();
     bringing = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
     renderBringing();
+  });
+  onValue(ref(PATHS.expenses), snap => {
+    const raw = snap.val();
+    expenses = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
+    renderExpenses();
+  });
+  onValue(ref(PATHS.expensePaid), snap => {
+    expensePaid = snap.val() || {};
+    renderExpenses();
+  });
+  onValue(ref(PATHS.extraSlots), snap => {
+    const raw = snap.val() || {};
+    extraSlots = {
+      canoe: Array.isArray(raw.canoe) ? raw.canoe : (raw.canoe ? Object.values(raw.canoe) : []),
+      kayak: Array.isArray(raw.kayak) ? raw.kayak : (raw.kayak ? Object.values(raw.kayak) : []),
+      bike:  Array.isArray(raw.bike)  ? raw.bike  : (raw.bike  ? Object.values(raw.bike)  : [])
+    };
+    renderExtraSlots();
   });
   onValue(ref(PATHS.settings), snap => {
     settings = snap.val() || DEFAULT_SETTINGS;
@@ -910,7 +1144,7 @@ window.saveSettings = function() {
 
 
 window.switchTab = function(tab) {
-  const tabs = ['plan','list','boat','bringing','manage'];
+  const tabs = ['plan','list','boat','bringing','expenses','manage'];
   tabs.forEach((t, i) => {
     document.getElementById('page-' + t).classList.toggle('active', t === tab);
     document.querySelectorAll('.tab')[i].classList.toggle('active', t === tab);
@@ -984,18 +1218,12 @@ window.exportData = function() {
 
 // ---- boat ----
 window.selectBoatType = function(type) {
-  const cap = type === 'pontoon' ? 12 : 8;
-  const currentCap = boatType === 'pontoon' ? 12 : 8;
-  if (type === boatType) return;
-  if (!confirm('Switch boat type? This will resize the slots list.')) return;
-  const newSlots = Array(cap).fill(null).map((_, i) => ({ name: slots[i] ? slots[i].name : '' }));
-  set(ref(PATHS.boatType), type);
-  set(ref(PATHS.slots), newSlots);
+  // only pontoon supported now
 };
 
 function renderBoatTypeCards() {
-  document.getElementById('bcard-pontoon').className = 'boat-card' + (boatType === 'pontoon' ? ' selected' : '');
-  document.getElementById('bcard-skiboat').className = 'boat-card' + (boatType === 'skiboat' ? ' selected' : '');
+  const el = document.getElementById('bcard-pontoon');
+  if (el) el.className = 'boat-card selected';
 }
 
 function renderSlots() {
@@ -1250,11 +1478,221 @@ window.closeModal = function(id) {
 };
 
 // close on overlay tap
-['item-modal','slot-modal','bbqonly-modal','bringing-modal','settings-modal'].forEach(id => {
+['item-modal','slot-modal','bbqonly-modal','bringing-modal','extra-slot-modal','expense-modal','settings-modal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
 });
+
+// ---- extra rentals (canoe / kayak / bike) ----
+const EXTRA_LABELS = { canoe: '🛶 Canoe', kayak: '🏄 Kayak/Paddle Board', bike: '🚴 Kayak/Bike' };
+
+function renderExtraSlots() {
+  ['canoe','kayak','bike'].forEach(type => {
+    const el = document.getElementById(type + '-slots-list');
+    if (!el) return;
+    const list = extraSlots[type] || [];
+    if (!list.length) {
+      el.innerHTML = '<div class="empty-state" style="padding:12px 14px;text-align:left;font-size:12px;">No one signed up yet</div>';
+      return;
+    }
+    el.innerHTML = list.map((p, i) => `
+      <div class="slot">
+        <span class="slot-num">${i + 1}</span>
+        <span class="slot-name">${p.name}</span>
+        <div class="slot-actions">
+          <button class="btn-icon del" onclick="removeExtraSlot('${type}',${i})">✕</button>
+        </div>
+      </div>`).join('');
+  });
+}
+
+window.openAddExtraSlot = function(type) {
+  currentExtraSlotType = type;
+  document.getElementById('extra-slot-modal-title').textContent = 'Sign up · ' + EXTRA_LABELS[type];
+  document.getElementById('extra-slot-name-input').value = '';
+  document.getElementById('extra-slot-modal').classList.add('open');
+  setTimeout(() => document.getElementById('extra-slot-name-input').focus(), 100);
+};
+
+window.saveExtraSlot = function() {
+  const name = document.getElementById('extra-slot-name-input').value.trim();
+  if (!name || !currentExtraSlotType) return;
+  const arr = [...(extraSlots[currentExtraSlotType] || [])];
+  arr.push({ name });
+  const updated = { ...extraSlots, [currentExtraSlotType]: arr };
+  set(ref(PATHS.extraSlots), updated);
+  closeModal('extra-slot-modal');
+};
+
+window.removeExtraSlot = function(type, idx) {
+  if (!confirm('Remove ' + extraSlots[type][idx].name + '?')) return;
+  const arr = [...extraSlots[type]];
+  arr.splice(idx, 1);
+  const updated = { ...extraSlots, [type]: arr };
+  set(ref(PATHS.extraSlots), updated);
+};
+
+// ---- expenses ----
+
+function getBoatPeople() {
+  return slots.filter(s => s && s.name).map(s => s.name);
+}
+function getBbqOnlyPeople() {
+  return bbqOnly.map(p => p.name);
+}
+function getAllPeople() {
+  const boat = getBoatPeople();
+  const bbqO = getBbqOnlyPeople();
+  // merge, dedup by lowercase name
+  const seen = new Set(boat.map(n => n.toLowerCase()));
+  const all = [...boat];
+  bbqO.forEach(n => { if (!seen.has(n.toLowerCase())) { seen.add(n.toLowerCase()); all.push(n); } });
+  return all;
+}
+
+function renderExpenses() {
+  // --- expense list ---
+  const listEl = document.getElementById('expense-items-list');
+  if (!expenses.length) {
+    listEl.innerHTML = '<div class="empty-state">No expenses added yet</div>';
+    document.getElementById('expense-summary-rows').innerHTML = '<div class="empty-state">No expenses yet</div>';
+    document.getElementById('person-breakdown-card').style.display = 'none';
+    return;
+  }
+
+  listEl.innerHTML = expenses.map((e, i) => `
+    <div class="expense-item">
+      <div class="expense-item-info">
+        <div class="expense-item-desc">${e.desc}</div>
+        <div class="expense-item-meta">Paid by <strong>${e.paidBy}</strong></div>
+      </div>
+      <span class="expense-split-tag ${e.split === 'boat' ? 'boat' : 'all'}">${e.split === 'boat' ? 'Boat' : 'Everyone'}</span>
+      <div class="expense-item-amount">$${parseFloat(e.amount).toFixed(2)}</div>
+      <div class="item-actions">
+        <button class="btn-icon" onclick="openEditExpense(${i})">✏️</button>
+        <button class="btn-icon del" onclick="deleteExpense(${i})">🗑</button>
+      </div>
+    </div>`).join('');
+
+  // --- totals ---
+  const boatTotal = expenses.filter(e => e.split === 'boat').reduce((s, e) => s + parseFloat(e.amount), 0);
+  const allTotal = expenses.filter(e => e.split === 'all').reduce((s, e) => s + parseFloat(e.amount), 0);
+  const grandTotal = boatTotal + allTotal;
+
+  document.getElementById('expense-summary-rows').innerHTML = `
+    <div class="expense-total-row">
+      <span class="etl">⛵ Boat only</span>
+      <span class="etr boat">$${boatTotal.toFixed(2)}</span>
+    </div>
+    <div class="expense-total-row">
+      <span class="etl">🔥 Everyone (BBQ)</span>
+      <span class="etr fire">$${allTotal.toFixed(2)}</span>
+    </div>
+    <div class="expense-total-row" style="border-top:2px solid var(--border);margin-top:0;">
+      <span class="etl" style="font-weight:600;">Grand total</span>
+      <span class="etr big">$${grandTotal.toFixed(2)}</span>
+    </div>`;
+
+  // --- per-person breakdown ---
+  const boatPeople = getBoatPeople();
+  const allPeople = getAllPeople();
+
+  if (!allPeople.length && !boatPeople.length) {
+    document.getElementById('person-breakdown-card').style.display = 'none';
+    return;
+  }
+  document.getElementById('person-breakdown-card').style.display = '';
+
+  // compute each person's share
+  const personShares = {};
+  allPeople.forEach(n => personShares[n] = { boat: 0, all: 0 });
+
+  expenses.forEach(e => {
+    const amt = parseFloat(e.amount);
+    if (e.split === 'boat') {
+      const n = boatPeople.length;
+      if (n > 0) boatPeople.forEach(p => { if (personShares[p]) personShares[p].boat += amt / n; });
+    } else {
+      const n = allPeople.length;
+      if (n > 0) allPeople.forEach(p => { if (personShares[p]) personShares[p].all += amt / n; });
+    }
+  });
+
+  const rows = allPeople.map(name => {
+    const s = personShares[name];
+    const total = s.boat + s.all;
+    const paidKey = name.toLowerCase().replace(/\s+/g, '_');
+    const isPaid = !!expensePaid[paidKey];
+    let detail = [];
+    if (s.boat > 0) detail.push(`Boat: $${s.boat.toFixed(2)}`);
+    if (s.all > 0) detail.push(`BBQ: $${s.all.toFixed(2)}`);
+    const isBoat = boatPeople.some(b => b.toLowerCase() === name.toLowerCase());
+    return `<div class="person-row">
+      <div class="person-row-top">
+        <span class="person-row-name">${name} <span style="font-size:10px;color:var(--muted);font-weight:400;">${isBoat ? '⛵' : '🍗'}</span></span>
+        <span class="person-row-total" style="${isPaid ? 'color:var(--check);text-decoration:line-through;opacity:0.6;' : ''}">$${total.toFixed(2)}</span>
+      </div>
+      ${detail.length ? `<div class="person-row-detail">${detail.join(' · ')}</div>` : ''}
+      <div class="person-paid-row">
+        <button class="person-paid-btn ${isPaid ? 'paid' : ''}" onclick="togglePaid('${paidKey}')">
+          <div class="person-paid-check ${isPaid ? 'checked' : ''}"></div>
+          ${isPaid ? 'Paid ✓' : 'Mark as paid'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('person-breakdown-rows').innerHTML = rows || '<div class="empty-state">Add people in the Boat tab first</div>';
+}
+
+window.togglePaid = function(key) {
+  const newVal = !expensePaid[key];
+  ref(PATHS.expensePaid).update({ [key]: newVal });
+};
+
+window.openAddExpense = function() {
+  editingExpenseIdx = null;
+  document.getElementById('expense-modal-title').textContent = 'Add expense';
+  document.getElementById('exp-paidby').value = '';
+  document.getElementById('exp-desc').value = '';
+  document.getElementById('exp-amount').value = '';
+  document.getElementById('exp-split').value = 'all';
+  document.getElementById('expense-modal').classList.add('open');
+  setTimeout(() => document.getElementById('exp-paidby').focus(), 100);
+};
+
+window.openEditExpense = function(idx) {
+  editingExpenseIdx = idx;
+  const e = expenses[idx];
+  document.getElementById('expense-modal-title').textContent = 'Edit expense';
+  document.getElementById('exp-paidby').value = e.paidBy;
+  document.getElementById('exp-desc').value = e.desc;
+  document.getElementById('exp-amount').value = e.amount;
+  document.getElementById('exp-split').value = e.split;
+  document.getElementById('expense-modal').classList.add('open');
+};
+
+window.saveExpense = function() {
+  const paidBy = document.getElementById('exp-paidby').value.trim();
+  const desc = document.getElementById('exp-desc').value.trim();
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const split = document.getElementById('exp-split').value;
+  if (!paidBy || !desc || isNaN(amount) || amount <= 0) return;
+  const arr = [...expenses];
+  const entry = { paidBy, desc, amount: amount.toFixed(2), split };
+  if (editingExpenseIdx !== null) arr[editingExpenseIdx] = entry;
+  else arr.push(entry);
+  set(ref(PATHS.expenses), arr);
+  closeModal('expense-modal');
+};
+
+window.deleteExpense = function(idx) {
+  if (!confirm('Delete "' + expenses[idx].desc + '"?')) return;
+  const arr = [...expenses];
+  arr.splice(idx, 1);
+  set(ref(PATHS.expenses), arr);
+};
 
 init();
 </script>
