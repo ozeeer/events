@@ -36,7 +36,6 @@
       measurementId: "G-EERC9V2931"
   };
 
-  // Where entries are stored in the database
   const DB_PATH = "bbq_whipple_2026";
 </script>
 <!-- ============================================================ -->
@@ -222,6 +221,19 @@
   .exp-amt{ font-family:"DM Mono", monospace; font-weight:500; font-size:16px; flex:none; }
   .empty{ color:var(--ink-2); font-size:14px; }
 
+
+  /* carpool */
+  .cp-board{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px; }
+  .cp-col-h{ font-family:"DM Mono", monospace; text-transform:uppercase; letter-spacing:.12em; font-size:12px; color:var(--ink-2); margin-bottom:12px; }
+  .cp-item{ border:1.5px solid var(--line); border-radius:10px; background:var(--cream); padding:12px 14px; margin-bottom:9px; display:flex; align-items:flex-start; gap:10px; }
+  .cp-icon{ font-size:18px; flex:none; margin-top:1px; }
+  .cp-body{ flex:1; min-width:0; }
+  .cp-name{ font-weight:700; }
+  .cp-meta{ font-size:13px; color:var(--ink-2); margin-top:3px; }
+  .cp-seats{ display:inline-block; font-family:"DM Mono", monospace; font-size:11px; background:var(--ember); color:#fff; border-radius:6px; padding:2px 7px; margin-left:6px; font-weight:500; }
+  .cp-empty{ font-size:13px; color:var(--ash); font-style:italic; }
+  @media(max-width:680px){ .cp-board{ grid-template-columns:1fr; } }
+
   footer{ text-align:center; font-family:"DM Mono", monospace; font-size:12px; color:var(--ink-2); margin-top:34px; }
 
   @media (max-width:680px){
@@ -263,6 +275,7 @@
     <button class="tab active" data-tab="rsvp">RSVP</button>
     <button class="tab" data-tab="shopping">Shopping</button>
     <button class="tab" data-tab="expenses">Expenses</button>
+    <button class="tab" data-tab="carpool">Carpool</button>
   </div>
 
   <!-- ============ RSVP PANEL ============ -->
@@ -406,6 +419,52 @@
     </section>
   </div>
 
+
+  <!-- ============ CARPOOL PANEL ============ -->
+  <div class="panel" id="panel-carpool">
+    <section class="card">
+      <h2>Carpool</h2>
+      <p class="sub">Coordinate rides to Whipple Dam so nobody drives alone.</p>
+
+      <div class="add-grid" style="grid-template-columns:2fr 1fr 1fr auto;">
+        <div class="add-cell-name">
+          <span class="lt">Your name</span>
+          <input type="text" id="cp-name" placeholder="Vaibhav Pal">
+        </div>
+        <div>
+          <span class="lt">Role</span>
+          <select id="cp-type">
+            <option value="offer">Offering a ride</option>
+            <option value="request">Need a ride</option>
+          </select>
+        </div>
+        <div id="cp-seats-wrap">
+          <span class="lt">Seats free</span>
+          <input type="number" id="cp-seats" min="1" max="8" value="2">
+        </div>
+        <div class="add-cell-btn">
+          <button class="add-btn" id="cp-add-btn">Add</button>
+        </div>
+      </div>
+
+      <label class="fld" style="margin-bottom:16px">
+        <span class="lt">Departing from <span style="color:var(--ink-2);font-weight:400">(neighborhood / address)</span></span>
+        <input type="text" id="cp-from" placeholder="e.g. State College downtown, 9:30 AM">
+      </label>
+
+      <div class="cp-board" id="cp-board">
+        <div>
+          <div class="cp-col-h">&#128665; Offering rides</div>
+          <div id="cp-offers"><p class="cp-empty">No drivers yet.</p></div>
+        </div>
+        <div>
+          <div class="cp-col-h">&#128075; Need a ride</div>
+          <div id="cp-requests"><p class="cp-empty">No requests yet.</p></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <footer>Ozbolat Lab &middot; 2026 &middot; Made by Ozer</footer>
 </div>
 
@@ -467,7 +526,7 @@
 
   // ---- live vs demo ----
   var live = false, refs = {};
-  var store = { rsvps:{}, shopping:{}, expenses:{} };
+  var store = { rsvps:{}, shopping:{}, expenses:{}, carpool:{} };
   var seq = 0;
   var configured = FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf("YOUR_") !== 0;
 
@@ -475,7 +534,7 @@
     try {
       firebase.initializeApp(FIREBASE_CONFIG);
       var root = firebase.database().ref(DB_PATH);
-      refs = { rsvps:root.child("rsvps"), shopping:root.child("shopping"), expenses:root.child("expenses"), meta:root.child("meta") };
+      refs = { rsvps:root.child("rsvps"), shopping:root.child("shopping"), expenses:root.child("expenses"), carpool:root.child("carpool"), meta:root.child("meta") };
       live = true;
     } catch (e) { console.warn("Firebase init failed, demo mode:", e); live = false; }
   }
@@ -608,7 +667,25 @@
     }).join("");
   }
 
-  function renderAll(){ renderRsvp(); renderShopping(); renderExpenses(); }
+  function renderCarpool(){
+    var list = entries("carpool");
+    var offers = list.filter(function(e){ return e.type === "offer"; });
+    var requests = list.filter(function(e){ return e.type === "request"; });
+
+    function row(e){
+      var icon = e.type === "offer" ? "&#128665;" : "&#128075;";
+      var seats = e.type === "offer" && e.seats ? '<span class="cp-seats">' + e.seats + ' seat' + (e.seats > 1 ? 's' : '') + '</span>' : "";
+      var from = e.from ? '<div class="cp-meta">&#128205; ' + esc(e.from) + '</div>' : "";
+      return '<div class="cp-item"><span class="cp-icon">' + icon + '</span>' +
+             '<div class="cp-body"><div class="cp-name">' + esc(e.name) + seats + '</div>' + from + '</div>' +
+             '<button class="si-del" data-act="del" data-node="carpool" data-id="' + e.__id + '" title="Remove">&times;</button></div>';
+    }
+
+    document.getElementById("cp-offers").innerHTML = offers.length ? offers.map(row).join("") : '<p class="cp-empty">No drivers yet.</p>';
+    document.getElementById("cp-requests").innerHTML = requests.length ? requests.map(row).join("") : '<p class="cp-empty">No requests yet.</p>';
+  }
+
+  function renderAll(){ renderRsvp(); renderShopping(); renderExpenses(); renderCarpool(); }
 
   // ---- RSVP form ----
   var status = "yes";
@@ -674,6 +751,28 @@
     document.getElementById("ea-amt").value = "";
   });
 
+  // ---- carpool form ----
+  var cpTypeEl = document.getElementById("cp-type");
+  var cpSeatsWrap = document.getElementById("cp-seats-wrap");
+  cpTypeEl.addEventListener("change", function(){
+    cpSeatsWrap.style.display = cpTypeEl.value === "offer" ? "" : "none";
+  });
+  document.getElementById("cp-add-btn").addEventListener("click", function(){
+    var name = document.getElementById("cp-name").value.trim();
+    if (!name){ document.getElementById("cp-name").focus(); return; }
+    var type = cpTypeEl.value;
+    var seats = type === "offer" ? (parseInt(document.getElementById("cp-seats").value,10) || 2) : 0;
+    add("carpool", {
+      type: type,
+      name: name,
+      seats: seats,
+      from: document.getElementById("cp-from").value.trim(),
+      ts: Date.now()
+    });
+    document.getElementById("cp-name").value = "";
+    document.getElementById("cp-from").value = "";
+  });
+
   // ---- tabs ----
   document.querySelectorAll(".tab").forEach(function(t){
     t.addEventListener("click", function(){
@@ -697,7 +796,7 @@
   // ---- boot ----
   if (live){
     seedLive();
-    ["rsvps","shopping","expenses"].forEach(function(node){
+    ["rsvps","shopping","expenses","carpool"].forEach(function(node){
       refs[node].on("value", function(snap){ store[node] = snap.val() || {}; renderAll(); });
     });
   } else {
