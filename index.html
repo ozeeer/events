@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World's End Camping Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..800,100&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#1B2A41; --night-2:#24374F; --pine:#2F5D50; --pine-2:#3F7A68;
+  --ember:#E8792B; --ember-2:#F5A24B; --creek:#CFE3DC; --canvas:#EFE6D3; --canvas-2:#E4D8BE;
+  --ink:#22231F; --ink-2:#5B5A52; --ok:#3F7A68; --warn:#B4452E;
+  --r:14px; --shadow:0 10px 30px rgba(27,42,65,.12);
+  --font-display:"Fraunces",Georgia,serif; --font-body:"Manrope",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--font-body);color:var(--ink);background:var(--canvas);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0 0 .4em;line-height:1.1}
+h2{font-size:clamp(1.7rem,4vw,2.4rem)}
+h3{font-size:1.2rem}
+p{margin:0 0 1em}
+a{color:var(--pine)}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:1rem;padding:.6rem .75rem;border:1.5px solid var(--canvas-2);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--ember-2);outline-offset:1px}
+label{display:block;font-weight:600;font-size:.9rem;margin:.6rem 0 .25rem}
+.hint{color:var(--ink-2);font-size:.88rem}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.1rem;border-radius:999px;border:none;background:var(--pine);color:#fff;font-weight:600;font-size:.95rem;transition:transform .15s,background .15s}
+.btn:hover{background:var(--pine-2)}
+.btn:active{transform:scale(.97)}
+.btn.ember{background:var(--ember)}.btn.ember:hover{background:var(--ember-2)}
+.btn.ghost{background:transparent;color:var(--pine);border:1.5px solid var(--pine)}
+.btn.small{padding:.35rem .75rem;font-size:.85rem}
+.btn.danger{background:var(--warn)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---------- HERO ---------- */
+#hero{position:relative;height:100svh;min-height:560px;overflow:hidden;background:linear-gradient(#0f1a2c 0%,#1B2A41 45%,#2b3d52 100%);color:#fff}
+#hero svg{position:absolute;inset:0;width:100%;height:100%}
+.hero-copy{position:absolute;left:0;right:0;top:12%;text-align:center;padding:0 1rem;z-index:3}
+.hero-copy .eyebrow{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.1rem;opacity:.85;margin-bottom:.5rem}
+.hero-copy h1{font-size:clamp(3rem,11vw,7rem);font-weight:700;letter-spacing:-.02em;line-height:.95;font-variation-settings:"SOFT" 100}
+.hero-copy h1 span{display:inline-block;opacity:0;transform:translateY(20px);animation:rise .8s cubic-bezier(.2,.8,.2,1) forwards}
+.hero-copy .sub{margin-top:1rem;font-size:1.05rem;opacity:0;animation:rise .8s .9s forwards}
+.hero-copy .cta{margin-top:1.4rem;opacity:0;animation:rise .8s 1.2s forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.star{animation:twinkle var(--d,3s) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
+.shoot{opacity:0;animation:shoot 9s 3s linear infinite}
+@keyframes shoot{0%{opacity:0;transform:translate(0,0)}3%{opacity:1}12%{opacity:0;transform:translate(-160px,90px)}100%{opacity:0}}
+.flame{transform-origin:50% 100%;animation:flick .5s ease-in-out infinite alternate}
+.flame.f2{animation-duration:.42s;animation-delay:.15s}.flame.f3{animation-duration:.6s;animation-delay:.3s}
+@keyframes flick{from{transform:scaleY(1) scaleX(1) rotate(-2deg)}to{transform:scaleY(1.12) scaleX(.94) rotate(2deg)}}
+.smoke{opacity:0;animation:puff 4s ease-out infinite}
+.smoke.s2{animation-delay:1.3s}.smoke.s3{animation-delay:2.6s}
+@keyframes puff{0%{opacity:0;transform:translate(0,0) scale(.6)}20%{opacity:.35}100%{opacity:0;transform:translate(14px,-90px) scale(1.8)}}
+.glow{animation:glow 1.2s ease-in-out infinite alternate}
+@keyframes glow{from{opacity:.55}to{opacity:.85}}
+.fly{animation:fly var(--d,7s) ease-in-out infinite alternate}
+.fly circle{animation:blink 2.4s ease-in-out infinite}
+@keyframes fly{from{transform:translate(0,0)}to{transform:translate(var(--dx,40px),var(--dy,-30px))}}
+@keyframes blink{0%,100%{opacity:0}50%{opacity:1}}
+.moon-halo{animation:halo 6s ease-in-out infinite alternate}
+@keyframes halo{from{opacity:.25}to{opacity:.5}}
+.owl{animation:owlblink 5s infinite}
+@keyframes owlblink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.scroll-cue{position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);font-size:.8rem;opacity:.7;animation:bob 2s infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.hero-copy h1 span,.hero-copy .sub,.hero-copy .cta{opacity:1;transform:none}}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;z-index:20;background:var(--night);display:flex;gap:.25rem;overflow-x:auto;padding:.5rem .75rem;scrollbar-width:none;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;background:transparent;border:none;color:#cfd8e3;padding:.5rem .9rem;border-radius:999px;font-weight:600;font-size:.9rem;white-space:nowrap}
+nav button.active{background:var(--ember);color:#fff}
+nav button .badge{background:rgba(255,255,255,.2);border-radius:999px;padding:0 .45rem;font-size:.75rem;margin-left:.3rem}
+
+/* ---------- LAYOUT ---------- */
+main{max-width:980px;margin:0 auto;padding:1.5rem 1rem 6rem}
+section.page{display:none}
+section.page.active{display:block;animation:fadein .35s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.lead{font-size:1.1rem;color:var(--ink-2);max-width:60ch}
+.card{background:#fff;border-radius:var(--r);padding:1.2rem;margin:1rem 0;box-shadow:var(--shadow)}
+.card.pine{background:var(--pine);color:#fff}.card.pine a{color:#fff}
+.card.night{background:var(--night);color:#fff}
+.card.creek{background:var(--creek)}
+.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.stat{font-family:var(--font-display);font-size:2.4rem;font-weight:700;line-height:1}
+.stat-l{font-size:.85rem;color:var(--ink-2)}
+.card.pine .stat-l,.card.night .stat-l{color:rgba(255,255,255,.75)}
+.pill{display:inline-block;background:var(--canvas);border-radius:999px;padding:.2rem .7rem;font-size:.8rem;font-weight:600;margin:.15rem}
+.pill.ember{background:var(--ember);color:#fff}.pill.pine{background:var(--pine);color:#fff}
+.who{position:fixed;bottom:1rem;right:1rem;z-index:25;background:#fff;border-radius:999px;padding:.5rem .9rem;box-shadow:var(--shadow);font-size:.85rem;display:flex;gap:.5rem;align-items:center;border:1.5px solid var(--canvas-2)}
+.who b{color:var(--pine)}
+.toast{position:fixed;top:4.2rem;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--night);color:#fff;padding:.6rem 1.1rem;border-radius:999px;opacity:0;transition:.3s;z-index:30;pointer-events:none;font-size:.9rem}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.banner{background:#FBE9D2;border-left:5px solid var(--ember);padding:.7rem 1rem;border-radius:8px;margin:1rem 0;font-size:.9rem}
+details{background:#fff;border-radius:var(--r);padding:.2rem 1.2rem;margin:.6rem 0;box-shadow:var(--shadow)}
+details summary{cursor:pointer;font-family:var(--font-display);font-size:1.15rem;font-weight:600;padding:.8rem 0;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::after{content:"+";font-size:1.4rem;color:var(--ember)}
+details[open] summary::after{content:"–"}
+details ul{padding-left:1.2rem}details li{margin:.3rem 0}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid var(--canvas-2);vertical-align:top}
+.countdown{display:flex;gap:.8rem}
+.countdown div{text-align:center}.countdown .stat{font-size:2rem}
+.timeline{border-left:3px solid var(--ember);margin-left:.6rem;padding-left:1.2rem}
+.timeline .ev{position:relative;margin:0 0 1rem}
+.timeline .ev::before{content:"";position:absolute;left:-1.62rem;top:.35rem;width:.85rem;height:.85rem;border-radius:50%;background:var(--ember);border:3px solid var(--canvas)}
+.timeline time{font-weight:700;color:var(--pine);font-size:.85rem}
+.day-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+.day-tabs button{border:1.5px solid var(--pine);background:#fff;color:var(--pine);padding:.4rem .9rem;border-radius:999px;font-weight:600}
+.day-tabs button.active{background:var(--pine);color:#fff}
+
+/* ---------- PEOPLE ---------- */
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--pine);color:#fff;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;flex:0 0 auto}
+.person{display:flex;gap:.7rem;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--canvas-2)}
+.person:last-child{border:none}
+.person .meta{font-size:.8rem;color:var(--ink-2)}
+.check{display:flex;gap:.6rem;align-items:center;font-weight:500;margin:.35rem 0}
+.check input{width:auto;transform:scale(1.2)}
+
+/* ---------- TENTS ---------- */
+.tents{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.tent{background:#fff;border-radius:var(--r);padding:1rem;box-shadow:var(--shadow);cursor:pointer;border:2px solid transparent;transition:transform .2s,border-color .2s;position:relative}
+.tent:hover{transform:translateY(-3px)}
+.tent.mine{border-color:var(--ember)}
+.tent.full{opacity:.7;cursor:not-allowed}
+.tent svg{width:100%;height:auto;display:block}
+.tent .tname{font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-top:.5rem}
+.tent .mates{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem;min-height:30px}
+.tent .mates .avatar{width:28px;height:28px;font-size:.7rem}
+.tent .slots{font-size:.8rem;color:var(--ink-2)}
+.tent .tglow{animation:glow 1.4s infinite alternate}
+.tent.pop{animation:pop .4s}
+@keyframes pop{30%{transform:scale(1.06)}}
+.tent .kind{position:absolute;top:.6rem;right:.6rem;font-size:.7rem;background:var(--canvas);padding:.15rem .5rem;border-radius:999px}
+
+/* ---------- CARPOOL ---------- */
+.road{position:relative;height:110px;background:#4a4f57;border-radius:var(--r);overflow:hidden;margin:1rem 0}
+.road::before{content:"";position:absolute;top:50%;left:0;right:0;height:4px;background:repeating-linear-gradient(90deg,#f6d55c 0 40px,transparent 40px 80px);transform:translateY(-50%);animation:dash 1.2s linear infinite}
+@keyframes dash{to{background-position:80px 0}}
+.road .scene-trees{position:absolute;bottom:0;left:0;right:0;height:22px;background:repeating-linear-gradient(90deg,var(--pine) 0 6px,transparent 6px 40px);opacity:.35}
+.car-drive{position:absolute;top:18px;left:-140px;animation:drive var(--d,7s) linear infinite}
+.car-drive svg{width:110px}
+.car-drive .wheel{transform-box:fill-box;transform-origin:50% 50%;animation:spin .4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes drive{to{left:110%}}
+.car-drive .lbl{position:absolute;top:-18px;left:0;right:0;text-align:center;color:#fff;font-size:.75rem;font-weight:700;white-space:nowrap}
+.cars{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.car{background:#fff;border-radius:var(--r);padding:1rem;box-shadow:var(--shadow)}
+.car.mine{border:2px solid var(--ember)}
+.seats{display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem;margin:.6rem 0;background:#eef1f3;border-radius:16px;padding:.6rem}
+.seat{height:44px;border-radius:10px;background:#fff;border:1.5px dashed #b8c0c8;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;cursor:pointer;transition:transform .15s}
+.seat:hover{transform:scale(1.04)}
+.seat.taken{border-style:solid;background:var(--pine);color:#fff;cursor:default}
+.seat.driver{background:var(--night);color:#fff;border-style:solid;cursor:default}
+.seat.me{background:var(--ember)}
+.seat.hop{animation:hop .5s}
+@keyframes hop{0%{transform:translateY(-30px);opacity:0}60%{transform:translateY(4px)}100%{transform:none;opacity:1}}
+
+/* ---------- SHOPPING ---------- */
+.shop-cat{margin:1rem 0 .3rem;font-family:var(--font-display);font-weight:600;font-size:1.1rem;color:var(--pine)}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:.6rem;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--canvas-2)}
+.item.done .txt{text-decoration:line-through;opacity:.5}
+.item .txt small{display:block;color:var(--ink-2);font-size:.78rem}
+.item input[type=checkbox]{width:auto;transform:scale(1.3)}
+.item select{width:auto;padding:.3rem .5rem;font-size:.8rem}
+.item .x{background:none;border:none;color:var(--warn);font-size:1.1rem;padding:.2rem .4rem}
+.addrow{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:.5rem;align-items:end}
+@media (max-width:600px){.addrow{grid-template-columns:1fr 1fr}.addrow .btn{grid-column:span 2}}
+
+/* ---------- SETTINGS ---------- */
+.lock{text-align:center;padding:2rem 1rem}
+.lock input{max-width:240px;margin:.5rem auto;display:block;text-align:center;font-size:1.2rem}
+.sgroup{margin:1.6rem 0}
+.sgroup h3{border-bottom:2px solid var(--canvas-2);padding-bottom:.3rem}
+.two{display:grid;gap:.6rem;grid-template-columns:1fr 1fr}
+.plan-editor .ev-row{display:grid;grid-template-columns:90px 1fr auto;gap:.4rem;margin:.3rem 0}
+.plan-editor input{padding:.4rem .5rem;font-size:.9rem}
+footer{text-align:center;padding:2rem 1rem;color:var(--ink-2);font-size:.85rem}
+.vote{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--canvas-2)}
+.vote .bar{height:6px;background:var(--canvas-2);border-radius:3px;margin-top:.3rem;overflow:hidden}
+.vote .bar i{display:block;height:100%;background:var(--ember);transition:width .4s}
+.wx{display:flex;gap:.5rem;overflow-x:auto;padding:.3rem 0}
+.wx div{flex:0 0 78px;text-align:center;background:#fff;border-radius:12px;padding:.5rem .3rem;font-size:.8rem}
+.wx .t{font-family:var(--font-display);font-size:1.2rem;font-weight:700}
+</style>
+</head>
+<body>
+<!-- ================= HERO ================= -->
+<header id="hero">
+  <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <radialGradient id="moonG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff5cc"/><stop offset="1" stop-color="#fff5cc" stop-opacity="0"/></radialGradient>
+      <radialGradient id="fireG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffb347" stop-opacity=".8"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
+      <linearGradient id="tentG" x1="0" x2="1"><stop offset="0" stop-color="#f7c96b"/><stop offset="1" stop-color="#e8a23a"/></linearGradient>
+      <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26405c"/><stop offset="1" stop-color="#16263a"/></linearGradient>
+    </defs>
+    <g id="stars"></g>
+    <line class="shoot" x1="980" y1="90" x2="1040" y2="55" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+    <circle class="moon-halo" cx="960" cy="150" r="90" fill="url(#moonG)"/>
+    <circle cx="960" cy="150" r="42" fill="#fff3c4"/>
+    <circle cx="975" cy="140" r="7" fill="#f3e3a8" opacity=".6"/><circle cx="948" cy="165" r="5" fill="#f3e3a8" opacity=".6"/>
+    <!-- far ridges -->
+    <path d="M0 430 L120 350 L230 400 L340 300 L460 380 L560 320 L700 400 L820 330 L940 390 L1060 340 L1200 400 L1200 700 L0 700Z" fill="#22364d"/>
+    <path d="M0 480 L150 420 L260 460 L400 380 L520 450 L640 410 L780 470 L900 420 L1050 460 L1200 430 L1200 700 L0 700Z" fill="#1c3040"/>
+    <!-- creek -->
+    <path d="M0 560 Q300 540 600 570 T1200 555 L1200 700 L0 700Z" fill="url(#lake)"/>
+    <ellipse cx="960" cy="590" rx="60" ry="6" fill="#fff3c4" opacity=".08"/>
+    <!-- ground -->
+    <path d="M0 600 Q200 585 400 600 T800 600 T1200 600 L1200 700 L0 700Z" fill="#12261f"/>
+    <g id="trees"></g>
+    <!-- tent -->
+    <g transform="translate(300 470)">
+      <circle cx="80" cy="95" r="80" fill="url(#fireG)" class="glow" opacity=".3"/>
+      <path d="M0 130 L80 10 L160 130Z" fill="url(#tentG)"/>
+      <path d="M80 10 L160 130 L120 130 L80 40Z" fill="#c98a2c" opacity=".55"/>
+      <path d="M58 130 L80 55 L102 130Z" fill="#fff0b8" class="glow"/>
+      <path d="M0 130 L-12 140 M160 130 L172 140" stroke="#ddd" stroke-width="2"/>
+      <path d="M-25 130 L185 130" stroke="#0b1a14" stroke-width="3"/>
+    </g>
+    <!-- campfire -->
+    <g transform="translate(560 540)">
+      <circle cx="30" cy="40" r="110" fill="url(#fireG)" class="glow" opacity=".45"/>
+      <path d="M-10 55 L70 70 M70 55 L-10 70" stroke="#5a3a1c" stroke-width="10" stroke-linecap="round"/>
+      <g class="smoke"><circle cx="30" cy="0" r="10" fill="#ccc"/></g>
+      <g class="smoke s2"><circle cx="36" cy="0" r="8" fill="#ccc"/></g>
+      <g class="smoke s3"><circle cx="24" cy="0" r="12" fill="#ccc"/></g>
+      <path class="flame" d="M30 60 C-5 35 15 10 30 -10 C45 10 65 35 30 60Z" fill="#ff7a1a"/>
+      <path class="flame f2" d="M30 60 C10 40 20 25 30 5 C40 25 50 40 30 60Z" fill="#ffb347"/>
+      <path class="flame f3" d="M30 60 C20 48 25 40 30 25 C35 40 40 48 30 60Z" fill="#fff0b8"/>
+      <ellipse cx="30" cy="62" rx="40" ry="8" fill="#3a2410"/>
+    </g>
+    <!-- people silhouettes -->
+    <g fill="#0b1a14"><circle cx="500" cy="585" r="10"/><path d="M485 600 Q500 590 515 600 L515 625 L485 625Z"/><circle cx="660" cy="585" r="10"/><path d="M645 600 Q660 590 675 600 L675 625 L645 625Z"/></g>
+    <!-- owl -->
+    <g transform="translate(1080 470)">
+      <ellipse cx="0" cy="12" rx="14" ry="18" fill="#3a2a1a"/>
+      <g class="owl"><circle cx="-5" cy="6" r="4" fill="#ffd54a"/><circle cx="5" cy="6" r="4" fill="#ffd54a"/></g>
+      <circle cx="-5" cy="6" r="1.5" fill="#000"/><circle cx="5" cy="6" r="1.5" fill="#000"/>
+    </g>
+    <g id="flies"></g>
+  </svg>
+  <div class="hero-copy">
+    <div class="eyebrow">a first camping trip to</div>
+    <h1 id="heroTitle">World's End</h1>
+    <div class="sub" id="heroSub">Sullivan County, Pennsylvania · date to be decided</div>
+    <div class="cta"><button class="btn ember" onclick="go('join')">Count me in</button> <button class="btn ghost" style="color:#fff;border-color:#fff" onclick="go('trip')">Trip details</button></div>
+  </div>
+  <div class="scroll-cue">scroll ↓</div>
+</header>
+
+<nav id="nav">
+  <button data-p="trip">Trip</button>
+  <button data-p="join">Join <span class="badge" id="bJoin">0</span></button>
+  <button data-p="tents">Tents</button>
+  <button data-p="carpool">Carpool</button>
+  <button data-p="shopping">Shopping</button>
+  <button data-p="plan">Plan</button>
+  <button data-p="guide">Beginner guide</button>
+  <button data-p="settings">Settings</button>
+</nav>
+
+<main>
+<div id="syncBanner" class="banner" style="display:none"></div>
+
+<!-- ================= TRIP ================= -->
+<section class="page" id="p-trip">
+  <h2 id="tripTitle">The trip</h2>
+  <p class="lead" id="tripLead"></p>
+  <div class="grid">
+    <div class="card pine"><div class="stat" id="stDate">TBD</div><div class="stat-l" id="stDateL">date</div></div>
+    <div class="card night"><div class="stat" id="stNights">?</div><div class="stat-l">nights</div></div>
+    <div class="card"><div class="stat" id="stPeople">0</div><div class="stat-l">going</div></div>
+  </div>
+  <div class="card" id="countdownCard" style="display:none"><h3>Countdown</h3><div class="countdown" id="countdown"></div></div>
+  <div class="card" id="pollCard">
+    <h3>Vote for a date</h3>
+    <p class="hint">Dates aren't fixed yet. Tap to vote for every weekend you can make. Ozer will lock in the winner in settings.</p>
+    <div id="pollList"></div>
+    <div class="row" style="margin-top:.8rem"><input type="date" id="pollNew" style="max-width:180px"><button class="btn small" onclick="addPollOption()">Suggest a date</button></div>
+  </div>
+  <div class="card">
+    <h3>Where</h3>
+    <div id="parkInfo"></div>
+  </div>
+  <div class="card creek">
+    <h3>Meeting point</h3>
+    <div id="meetInfo"></div>
+  </div>
+  <div class="card">
+    <h3>Weather at the park</h3>
+    <p class="hint" id="wxNote">Forecast for the next 7 days at World's End (Open-Meteo).</p>
+    <div class="wx" id="wx">Loading…</div>
+  </div>
+  <div class="card">
+    <h3>Cost estimate</h3>
+    <div id="costInfo"></div>
+  </div>
+</section>
+
+<!-- ================= JOIN ================= -->
+<section class="page" id="p-join">
+  <h2>Who's coming</h2>
+  <p class="lead">Add yourself once. Tick what you need to rent — Ozer picks everything up from Penn State based on this list.</p>
+  <div class="card" id="joinForm">
+    <label>Your name</label><input id="jName" placeholder="e.g. Ozer">
+    <label>Phone (for the group chat / emergencies)</label><input id="jPhone" placeholder="optional">
+    <label>I need to rent</label>
+    <div class="check"><input type="checkbox" id="jTent" checked> a spot in a rental tent</div>
+    <div class="check"><input type="checkbox" id="jBag" checked> a sleeping bag</div>
+    <div class="check"><input type="checkbox" id="jPad" checked> a sleeping pad (you want this — the ground is cold and hard)</div>
+    <label>Can you drive?</label>
+    <select id="jDrive"><option value="0">No, I need a ride</option><option value="1">Yes, I can drive</option></select>
+    <div id="jSeatsWrap" style="display:none"><label>Seats for passengers (not counting you)</label><input type="number" id="jSeats" min="1" max="7" value="3"></div>
+    <label>Food</label>
+    <select id="jDiet"><option>Eats anything</option><option>Vegetarian</option><option>Vegan</option><option>Halal</option><option>Gluten-free</option><option>Other (see notes)</option></select>
+    <label>Notes</label><input id="jNotes" placeholder="allergies, 'I only do one night', 'I have my own tent'…">
+    <div style="margin-top:1rem"><button class="btn ember" onclick="joinTrip()">I'm in</button> <button class="btn ghost" id="cancelEdit" style="display:none" onclick="cancelEditPerson()">Cancel</button></div>
+  </div>
+  <div class="card"><h3>Going (<span id="peopleCount">0</span>)</h3><div id="peopleList"></div></div>
+  <div class="card creek">
+    <h3>Rental pickup list for Penn State</h3>
+    <p class="hint">Auto-counted from everyone above. Screenshot this when you go to the rental center.</p>
+    <div class="grid" id="rentalStats"></div>
+    <div id="rentalNames"></div>
+    <p class="hint" id="rentalNote" style="margin-top:.6rem"></p>
+  </div>
+</section>
+
+<!-- ================= TENTS ================= -->
+<section class="page" id="p-tents">
+  <h2>Pick your tent</h2>
+  <p class="lead">Tap a tent to move in. Tap again to leave. Tents are added by Ozer once he knows how many people need one, and anyone bringing their own tent can add it below.</p>
+  <div class="tents" id="tentGrid"></div>
+  <div class="card" style="margin-top:1.2rem">
+    <h3>Bringing your own tent?</h3>
+    <div class="row"><input id="ownTentName" placeholder="Tent name (e.g. Ozer's 4-person)" style="max-width:260px"><input id="ownTentCap" type="number" min="1" max="8" value="4" style="max-width:90px"><button class="btn small" onclick="addOwnTent()">Add my tent</button></div>
+  </div>
+  <div class="card" id="unassigned"></div>
+</section>
+
+<!-- ================= CARPOOL ================= -->
+<section class="page" id="p-carpool">
+  <h2>Carpool</h2>
+  <p class="lead">Everyone leaves together from the meeting point. Tap an empty seat to hop in. Drivers: add your car below.</p>
+  <div class="road" id="road"><div class="scene-trees"></div></div>
+  <div class="cars" id="carGrid"></div>
+  <div class="card" style="margin-top:1.2rem">
+    <h3>Add your car</h3>
+    <p class="hint">Only people who said they can drive show up here.</p>
+    <div class="row"><select id="carDriver" style="max-width:220px"></select><input id="carName" placeholder="Car (e.g. grey Civic)" style="max-width:200px"><input id="carSeats" type="number" min="1" max="7" value="3" style="max-width:80px" title="passenger seats"><button class="btn small" onclick="addCar()">Add car</button></div>
+  </div>
+  <div class="card creek" id="rideStats"></div>
+</section>
+
+<!-- ================= SHOPPING ================= -->
+<section class="page" id="p-shopping">
+  <h2>Shopping list</h2>
+  <p class="lead">Anyone can add items, claim them, or tick them off. Claim something so we don't buy five bags of marshmallows.</p>
+  <div class="card">
+    <div class="addrow">
+      <div><label>Item</label><input id="shItem" placeholder="e.g. Hot dogs (2 packs)"></div>
+      <div><label>Category</label><select id="shCat"><option>Food</option><option>Drinks</option><option>Cooking</option><option>Camp gear</option><option>Fire</option><option>Safety & hygiene</option><option>Fun</option><option>Other</option></select></div>
+      <div><label>Est. cost $</label><input id="shCost" type="number" min="0" placeholder="0"></div>
+      <button class="btn" onclick="addItem()">Add</button>
+    </div>
+  </div>
+  <div class="row" style="margin:.6rem 0"><span class="pill" id="shProgress"></span><span class="pill" id="shTotal"></span><button class="btn small ghost" onclick="toggleDone()">Hide/show done</button></div>
+  <div class="card" id="shopList"></div>
+</section>
+
+<!-- ================= PLAN ================= -->
+<section class="page" id="p-plan">
+  <h2>The plan</h2>
+  <p class="lead" id="planLead"></p>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="card"><div class="timeline" id="timeline"></div></div>
+  <div class="card creek"><h3>Camp jobs</h3><p class="hint">So nobody stands around. Tap a job to claim it.</p><div id="jobs"></div></div>
+</section>
+
+<!-- ================= GUIDE ================= -->
+<section class="page" id="p-guide">
+  <h2>Camping for the first time</h2>
+  <p class="lead">Everything we wish someone had told us. Read this once before the trip.</p>
+  <div id="guideList"></div>
+  <div class="card night"><h3>Emergency</h3><div id="emergency"></div></div>
+</section>
+
+<!-- ================= SETTINGS ================= -->
+<section class="page" id="p-settings">
+  <h2>Settings</h2>
+  <div class="lock" id="lockBox">
+    <p>Trip organizer only.</p>
+    <input type="password" id="pw" placeholder="password" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="btn" onclick="unlock()">Unlock</button>
+  </div>
+  <div id="settingsBox" style="display:none"></div>
+</section>
+</main>
+
+<div class="who" id="whoBox" onclick="go('join')">You are: <b id="whoName">not set</b> <span class="hint">tap to change</span></div>
+<div class="toast" id="toast"></div>
+<footer>Made for our crew · World's End State Park · <span id="syncState"></span></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* =====================================================================
+   CONFIG — paste your Firebase Realtime Database config here to make the
+   site shared between everyone. Leave null to run on this device only.
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBbE2SN2ahlyOHaYIGEGeFikmtfoN8DOuM",
+  authDomain: "general-cba60.firebaseapp.com",
+  databaseURL: "https://general-cba60-default-rtdb.firebaseio.com",
+  projectId: "general-cba60",
+  storageBucket: "general-cba60.firebasestorage.app",
+  messagingSenderId: "210772843659",
+  appId: "1:210772843659:web:003d8f28b69fe77b0dc88e"
+};
+const TRIP_KEY = "worldsend-trip";
+
+/* ---------------- default state ---------------- */
+const DEFAULT = {
+  settings:{
+    title:"World's End", lead:"A weekend of creek, campfire, and stars at World's End State Park — for people who have never pitched a tent. Everything gets figured out on this page.",
+    dateStatus:"tbd", start:"", end:"", nights:1,
+    meetPlace:"Penn State — IM Building parking lot", meetTime:"9:00 AM", meetNote:"We caravan together. The drive is about 1 h 45 min from State College (roughly 80 miles via I‑80 and PA‑42). Fill up gas in State College — nothing on the way.",
+    park:{name:"World's End State Park", addr:"82 Cabin Bridge Rd, Forksville, PA 18616", phone:"(570) 924‑3287", reserve:"Reserve a campsite at pa.reserveamerica.com or call 1‑888‑PA‑PARKS. Sites fill up on weekends — book early.", site:"not reserved yet", notes:"The park sits in the Loyalsock Creek canyon. Campground has flush toilets, showers, water and fire rings. Cell signal is bad to nonexistent — download maps before you go. Quiet hours 9 PM – 8 AM."},
+    tentSize:4, rentalNote:"Renting from Penn State Campus Recreation Outdoor Adventures rental center (Intramural Building). Reserve a few days ahead, bring your PSU ID, and check their hours before driving over.",
+    siteCost:0, gasPerCar:40, rentalPerPerson:0, foodBudget:0,
+    password:"ozer", showPoll:true, emergency:"Call 911 for anything serious. Park office (570) 924‑3287 in daytime. Nearest hospital: Guthrie Robert Packer, Towanda (~40 min). Tell someone at home where we are and when we're back.",
+    jobs:["Fire boss","Head chef","Dishes & water","Tent setup lead","Photographer","Snack keeper","Music & games","Trash & Leave-No-Trace"]
+  },
+  people:{}, tents:{}, cars:{}, shopping:{}, poll:{}, jobs:{},
+  plan:[
+    {title:"Day 1", items:[
+      {t:"9:00 AM", x:"Meet at the IM Building lot. Load cars, double-check tents, bags, pads, cooler."},
+      {t:"9:30 AM", x:"Depart. Caravan — last car has the first-aid kit."},
+      {t:"11:30 AM", x:"Arrive, check in at the park office, drive to our site."},
+      {t:"12:00 PM", x:"Pitch tents first (before anything else — it's easiest with daylight and energy)."},
+      {t:"1:00 PM", x:"Lunch: sandwiches, fruit, chips. No cooking needed."},
+      {t:"2:00 PM", x:"Hike to Canyon Vista (short but steep; the view is the reason we came) or swim at the creek beach."},
+      {t:"5:30 PM", x:"Collect firewood from the park store, start the fire, chairs out."},
+      {t:"6:30 PM", x:"Dinner: hot dogs / veggie dogs over the fire, foil-packet potatoes, corn."},
+      {t:"8:00 PM", x:"S'mores, cards, music at low volume. Look up — the sky here is dark."},
+      {t:"9:00 PM", x:"Quiet hours. Food back in the cars, fire down to embers."}
+    ]},
+    {title:"Day 2", items:[
+      {t:"7:30 AM", x:"Whoever's up starts the stove for coffee. Oatmeal and eggs."},
+      {t:"9:00 AM", x:"High Rock Trail loop or lazy creek morning."},
+      {t:"11:00 AM", x:"Pack up: bags out, tents down and dried, site cleaner than we found it."},
+      {t:"12:00 PM", x:"Check out. Lunch stop in Williamsport on the way home."},
+      {t:"3:00 PM", x:"Back in State College. Return rentals to Penn State."}
+    ]}
+  ]
+};
+const DEFAULT_SHOPPING = [
+  ["Hot dogs / veggie dogs","Food",15],["Buns","Food",5],["Marshmallows, graham crackers, chocolate","Food",12],["Eggs + oatmeal for breakfast","Food",10],["Sandwich stuff for day-1 lunch","Food",20],["Fruit & trail mix","Food",15],["Chips & snacks","Food",12],["Potatoes, onions, corn (foil packets)","Food",10],["Ketchup, mustard, salt, oil, butter","Food",10],
+  ["Water — 1 gallon per person per day","Drinks",12],["Coffee + instant option","Drinks",8],["Drinks for the cooler","Drinks",20],["Ice (buy last, near the park)","Drinks",6],
+  ["Camp stove + fuel canister","Cooking",0],["Lighter ×2 + waterproof matches","Fire",5],["Firewood — buy at the park, don't bring it (invasive bugs)","Fire",25],["Roasting sticks","Fire",8],
+  ["Cooler","Cooking",0],["Pot, pan, spatula, tongs","Cooking",0],["Plates, cups, forks (reusable)","Cooking",10],["Foil, paper towels, ziplocks","Cooking",10],["Dish soap, sponge, wash basin","Cooking",8],["Trash bags (heavy duty)","Cooking",5],
+  ["Headlamps / flashlights + batteries","Camp gear",20],["Camp chairs","Camp gear",0],["Tarp / ground sheet under tents","Camp gear",15],["Rope / paracord","Camp gear",8],["Duct tape","Camp gear",5],
+  ["First-aid kit","Safety & hygiene",15],["Bug spray (DEET or picaridin)","Safety & hygiene",8],["Sunscreen","Safety & hygiene",8],["Toilet paper + hand sanitizer","Safety & hygiene",6],["Tick remover / tweezers","Safety & hygiene",4],
+  ["Cards, frisbee, Bluetooth speaker","Fun",0],["Star chart app downloaded offline","Fun",0]
+];
+
+/* ---------------- state + sync ---------------- */
+let S = null, db = null, me = localStorage.getItem(TRIP_KEY+":me") || "", adminOK = false, hideDone = false, curDay = 0;
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const initials = n => (n||"?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase();
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
+function normalize(s){
+  const n = JSON.parse(JSON.stringify(DEFAULT));
+  if(!s) return n;
+  n.settings = Object.assign(n.settings, s.settings||{}); n.settings.park = Object.assign(n.settings.park, (s.settings||{}).park||{});
+  for(const k of ["people","tents","cars","shopping","poll","jobs"]) n[k] = s[k]||{};
+  if(Array.isArray(s.plan)) n.plan = s.plan;
+  return n;
+}
+function seedShopping(){ if(Object.keys(S.shopping).length) return; DEFAULT_SHOPPING.forEach(([item,cat,cost],i)=>{S.shopping["d"+i]={item,cat,cost,who:"",done:false,order:i}}); }
+function save(){
+  if(db){ db.ref(TRIP_KEY).set(S); }
+  else { localStorage.setItem(TRIP_KEY, JSON.stringify(S)); render(); }
+}
+function boot(){
+  if(FIREBASE_CONFIG){
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database();
+      $("syncState").textContent = "live · shared with everyone";
+      db.ref(TRIP_KEY).on("value", snap=>{ S = normalize(snap.val()); if(!snap.val()){ seedShopping(); save(); } render(); });
+    }catch(e){ db=null; localBoot("Firebase failed to start ("+e.message+") — running locally."); }
+  } else localBoot("Local mode: this page only remembers things on this device. Paste a Firebase config at the top of the file so everyone shares one list.");
+}
+function localBoot(msg){
+  $("syncBanner").style.display="block"; $("syncBanner").textContent = msg; $("syncState").textContent="local only";
+  S = normalize(JSON.parse(localStorage.getItem(TRIP_KEY)||"null")); seedShopping(); localStorage.setItem(TRIP_KEY, JSON.stringify(S)); render();
+}
+
+/* ---------------- hero decorations ---------------- */
+(function(){
+  const st=$("stars"); let h="";
+  for(let i=0;i<120;i++){ const x=Math.random()*1200,y=Math.random()*380,r=Math.random()*1.6+.4; h+=`<circle class="star" style="--d:${(2+Math.random()*4).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r.toFixed(1)}" fill="#fff"/>`; }
+  st.innerHTML=h;
+  const tr=$("trees"); let t="";
+  const tree=(x,y,s,c)=>`<g transform="translate(${x} ${y}) scale(${s})" fill="${c}"><path d="M0 -90 L28 -40 L14 -40 L40 0 L20 0 L48 40 L-48 40 L-20 0 L-40 0 L-14 -40 L-28 -40Z"/><rect x="-6" y="40" width="12" height="18" fill="#2b1b0e"/></g>`;
+  for(let i=0;i<14;i++){ const x=i*95+(i%2?20:-15); t+=tree(x, 600, .9+Math.random()*.6, i%3?"#0f2a22":"#143a2f"); }
+  t+=tree(90,615,1.4,"#0b1f19")+tree(1130,610,1.3,"#0b1f19")+tree(760,612,1.1,"#0b1f19");
+  tr.innerHTML=t;
+  const fl=$("flies"); let f="";
+  for(let i=0;i<14;i++){ f+=`<g class="fly" style="--d:${(5+Math.random()*6).toFixed(1)}s;--dx:${(Math.random()*80-40).toFixed(0)}px;--dy:${(Math.random()*-60).toFixed(0)}px"><circle cx="${(200+Math.random()*800).toFixed(0)}" cy="${(480+Math.random()*120).toFixed(0)}" r="2.2" fill="#d9ff7a" style="animation-delay:${(Math.random()*2).toFixed(1)}s"/></g>`; }
+  fl.innerHTML=f;
+  const h1=$("heroTitle"); h1.innerHTML=[...h1.textContent].map((c,i)=>`<span style="animation-delay:${.15+i*.05}s">${c===" "?"&nbsp;":c}</span>`).join("");
+})();
+
+/* ---------------- nav ---------------- */
+function go(p){
+  document.querySelectorAll("section.page").forEach(s=>s.classList.toggle("active", s.id==="p-"+p));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active", b.dataset.p===p));
+  location.hash = p; $("nav").scrollIntoView({block:"start"});
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.p));
+$("jDrive").onchange = e => $("jSeatsWrap").style.display = e.target.value==="1"?"block":"none";
+
+/* ---------------- render all ---------------- */
+function render(){
+  if(!S) return;
+  const st=S.settings, people=Object.values(S.people);
+  $("heroTitle").querySelectorAll("span").length && ($("heroTitle").textContent!==st.title) && ($("heroTitle").innerHTML=[...st.title].map((c,i)=>`<span style="animation-delay:${.15+i*.05}s">${c===" "?"&nbsp;":c}</span>`).join(""));
+  $("heroSub").textContent = "Sullivan County, Pennsylvania · " + dateLabel();
+  $("tripTitle").textContent = st.title; $("tripLead").textContent = st.lead;
+  $("bJoin").textContent = people.length; $("stPeople").textContent = people.length;
+  $("stDate").textContent = st.dateStatus==="set" && st.start ? fmt(st.start).short : "TBD";
+  $("stDateL").textContent = st.dateStatus==="set" && st.start ? fmt(st.start).weekday : "date — vote below";
+  $("stNights").textContent = st.dateStatus==="set" ? st.nights : "1–2?";
+  $("whoName").textContent = me && S.people[me] ? S.people[me].name : "not set";
+  renderCountdown(); renderPoll(); renderPark(); renderCost();
+  renderPeople(); renderRental(); renderTents(); renderCars(); renderShopping(); renderPlan(); renderGuide();
+  if(adminOK) renderSettings();
+}
+function fmt(d){ const x=new Date(d+"T12:00:00"); return {short:x.toLocaleDateString(undefined,{month:"short",day:"numeric"}), weekday:x.toLocaleDateString(undefined,{weekday:"long"}), long:x.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})}; }
+function dateLabel(){ const st=S.settings; if(st.dateStatus!=="set"||!st.start) return "date to be decided"; return st.end&&st.end!==st.start ? fmt(st.start).short+" – "+fmt(st.end).short : fmt(st.start).long; }
+function renderCountdown(){
+  const st=S.settings, c=$("countdownCard"); if(st.dateStatus!=="set"||!st.start){c.style.display="none";return;}
+  c.style.display="block"; const ms=new Date(st.start+"T"+(st.meetTime.match(/\d+/)?"09:00":"09:00")+":00")-new Date();
+  if(ms<0){ $("countdown").innerHTML="<div class='stat'>Now!</div>"; return; }
+  const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);
+  $("countdown").innerHTML=`<div><div class="stat">${d}</div><div class="stat-l">days</div></div><div><div class="stat">${h}</div><div class="stat-l">hours</div></div><div><div class="stat">${m}</div><div class="stat-l">min</div></div>`;
+}
+setInterval(()=>S&&renderCountdown(),60000);
+function renderPoll(){
+  const st=S.settings; $("pollCard").style.display = st.showPoll && st.dateStatus!=="set" ? "block":"none";
+  const opts=Object.entries(S.poll).sort((a,b)=>a[1].date.localeCompare(b[1].date)); const n=Object.keys(S.people).length||1;
+  $("pollList").innerHTML = opts.length? opts.map(([id,o])=>{const v=o.votes||[]; const mine=v.includes(me); return `<div class="vote"><div style="flex:1"><b>${fmt(o.date).long}</b> <span class="hint">${v.map(p=>esc(S.people[p]?.name||"")).filter(Boolean).join(", ")||"no votes yet"}</span><div class="bar"><i style="width:${v.length/n*100}%"></i></div></div><button class="btn small ${mine?"ember":"ghost"}" onclick="vote('${id}')">${mine?"✓ can go":"I can go"}</button></div>`;}).join("") : "<p class='hint'>No dates suggested yet.</p>";
+}
+function addPollOption(){ const d=$("pollNew").value; if(!d) return toast("Pick a date first"); if(Object.values(S.poll).some(o=>o.date===d)) return toast("Already listed"); S.poll[uid()]={date:d,votes:[]}; $("pollNew").value=""; save(); }
+function vote(id){ if(!needMe()) return; const o=S.poll[id]; o.votes=o.votes||[]; const i=o.votes.indexOf(me); i>=0?o.votes.splice(i,1):o.votes.push(me); save(); }
+function needMe(){ if(me&&S.people[me]) return true; toast("Add yourself on the Join page first"); go("join"); return false; }
+function renderPark(){
+  const p=S.settings.park;
+  $("parkInfo").innerHTML=`<p><b>${esc(p.name)}</b><br>${esc(p.addr)}<br>Park office: ${esc(p.phone)}</p><p><b>Campsite:</b> ${esc(p.site)}</p><p>${esc(p.reserve)}</p><p class="hint">${esc(p.notes)}</p><p><a class="btn small ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+p.addr)}">Open in Maps</a></p>`;
+  const st=S.settings; $("meetInfo").innerHTML=`<p><b>${esc(st.meetPlace)}</b> at <b>${esc(st.meetTime)}</b>${st.dateStatus==="set"&&st.start?" on "+fmt(st.start).long:""}</p><p>${esc(st.meetNote)}</p>`;
+  $("emergency").innerHTML=`<p>${esc(st.emergency)}</p>`;
+}
+function renderCost(){
+  const st=S.settings, n=Object.keys(S.people).length||1, cars=Object.keys(S.cars).length||Math.ceil(n/4);
+  const shop=Object.values(S.shopping).reduce((a,i)=>a+(+i.cost||0),0);
+  const total=(+st.siteCost||0)+(+st.gasPerCar||0)*cars+shop+(+st.foodBudget||0); const rental=+st.rentalPerPerson||0;
+  $("costInfo").innerHTML=`<table><tr><td>Campsite</td><td>$${st.siteCost||0}</td></tr><tr><td>Gas (${cars} car${cars>1?"s":""} × $${st.gasPerCar})</td><td>$${(+st.gasPerCar||0)*cars}</td></tr><tr><td>Shopping list estimate</td><td>$${shop}</td></tr><tr><td>Extra food budget</td><td>$${st.foodBudget||0}</td></tr><tr><th>Shared total</th><th>$${total}</th></tr><tr><th>Per person (${n})</th><th>$${(total/n).toFixed(0)}${rental?" + $"+rental+" rental":""}</th></tr></table><p class="hint">Rough. We settle up after with Venmo.</p>`;
+}
+/* weather */
+fetch("https://api.open-meteo.com/v1/forecast?latitude=41.47&longitude=-76.58&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&timezone=America%2FNew_York").then(r=>r.json()).then(w=>{
+  const ic=c=>c===0?"☀️":c<3?"🌤️":c<50?"☁️":c<70?"🌧️":c<80?"❄️":c<90?"🌦️":"⛈️";
+  $("wx").innerHTML=w.daily.time.map((d,i)=>`<div><div>${new Date(d+"T12:00").toLocaleDateString(undefined,{weekday:"short"})}</div><div style="font-size:1.4rem">${ic(w.daily.weathercode[i])}</div><div class="t">${Math.round(w.daily.temperature_2m_max[i])}°</div><div class="hint">${Math.round(w.daily.temperature_2m_min[i])}° · ${w.daily.precipitation_probability_max[i]}%</div></div>`).join("");
+}).catch(()=>{$("wx").innerHTML="<span class='hint'>Forecast unavailable right now.</span>";});
+
+/* ---------------- people / join ---------------- */
+let editingId = null;
+function joinTrip(){
+  const name=$("jName").value.trim(); if(!name) return toast("Name first!");
+  const id = editingId || (me && S.people[me] ? me : uid());
+  S.people[id]={name, phone:$("jPhone").value.trim(), tent:$("jTent").checked, bag:$("jBag").checked, pad:$("jPad").checked,
+    drive:$("jDrive").value==="1", seats:+$("jSeats").value||0, diet:$("jDiet").value, notes:$("jNotes").value.trim(),
+    joined:S.people[id]?.joined||Date.now()};
+  if(!editingId || editingId===me || !me){ me=id; localStorage.setItem(TRIP_KEY+":me", me); }
+  editingId=null; $("cancelEdit").style.display="none";
+  ["jName","jPhone","jNotes"].forEach(i=>$(i).value=""); $("jTent").checked=$("jBag").checked=$("jPad").checked=true; $("jDrive").value="0"; $("jSeatsWrap").style.display="none";
+  toast("See you at the campfire, "+name+"!"); save();
+}
+function editPerson(id){
+  const p=S.people[id]; editingId=id;
+  $("jName").value=p.name;$("jPhone").value=p.phone||"";$("jTent").checked=p.tent;$("jBag").checked=p.bag;$("jPad").checked=p.pad;
+  $("jDrive").value=p.drive?"1":"0";$("jSeatsWrap").style.display=p.drive?"block":"none";$("jSeats").value=p.seats||3;$("jDiet").value=p.diet;$("jNotes").value=p.notes||"";
+  $("cancelEdit").style.display="inline-flex"; go("join"); $("jName").focus();
+}
+function cancelEditPerson(){ editingId=null; $("cancelEdit").style.display="none"; ["jName","jPhone","jNotes"].forEach(i=>$(i).value=""); }
+function removePerson(id){
+  if(!confirm("Remove "+S.people[id].name+" from the trip?")) return;
+  delete S.people[id];
+  Object.values(S.tents).forEach(t=>{t.members=(t.members||[]).filter(m=>m!==id)});
+  Object.entries(S.cars).forEach(([cid,c])=>{ if(c.driver===id) delete S.cars[cid]; else c.riders=(c.riders||[]).filter(r=>r!==id); });
+  Object.values(S.poll).forEach(o=>{o.votes=(o.votes||[]).filter(v=>v!==id)});
+  Object.entries(S.jobs).forEach(([j,pid])=>{ if(pid===id) delete S.jobs[j]; });
+  if(me===id){me="";localStorage.removeItem(TRIP_KEY+":me");}
+  save();
+}
+function renderPeople(){
+  const ids=Object.keys(S.people).sort((a,b)=>S.people[a].joined-S.people[b].joined);
+  $("peopleCount").textContent=ids.length;
+  $("peopleList").innerHTML = ids.length ? ids.map(id=>{const p=S.people[id];
+    return `<div class="person"><span class="avatar">${initials(p.name)}</span><div style="flex:1"><b>${esc(p.name)}</b>${id===me?" <span class='pill ember'>you</span>":""}${p.drive?` <span class='pill pine'>driver · ${p.seats} seats</span>`:""}<div class="meta">${[p.tent?"tent":"",p.bag?"bag":"",p.pad?"pad":""].filter(Boolean).join(" + ")||"has own gear"} · ${esc(p.diet)}${p.notes?" · "+esc(p.notes):""}</div></div><button class="btn small ghost" onclick="editPerson('${id}')">Edit</button>${(id===me||adminOK)?`<button class="x" onclick="removePerson('${id}')" title="remove">✕</button>`:""}</div>`;
+  }).join("") : "<p class='hint'>Nobody yet — be the first!</p>";
+}
+function renderRental(){
+  const ppl=Object.values(S.people);
+  const tents=Math.ceil(ppl.filter(p=>p.tent).length/(S.settings.tentSize||4));
+  const bags=ppl.filter(p=>p.bag).length, pads=ppl.filter(p=>p.pad).length;
+  $("rentalStats").innerHTML=`<div class="card" style="margin:0"><div class="stat">${tents}</div><div class="stat-l">tents (${S.settings.tentSize}-person)</div></div><div class="card" style="margin:0"><div class="stat">${bags}</div><div class="stat-l">sleeping bags</div></div><div class="card" style="margin:0"><div class="stat">${pads}</div><div class="stat-l">sleeping pads</div></div>`;
+  const nm=k=>ppl.filter(p=>p[k]).map(p=>esc(p.name)).join(", ")||"—";
+  $("rentalNames").innerHTML=`<table><tr><td>Tent spot</td><td>${nm("tent")}</td></tr><tr><td>Sleeping bag</td><td>${nm("bag")}</td></tr><tr><td>Sleeping pad</td><td>${nm("pad")}</td></tr></table>`;
+  $("rentalNote").textContent=S.settings.rentalNote;
+}
+
+/* ---------------- tents ---------------- */
+function tentSVG(occ,cap,mine){
+  const lit=occ>0;
+  return `<svg viewBox="0 0 200 120" aria-hidden="true">
+    <path d="M0 112 L200 112" stroke="#cdbf9e" stroke-width="4"/>
+    ${lit?'<ellipse cx="100" cy="106" rx="70" ry="12" fill="#f5a24b" opacity=".25" class="tglow"/>':""}
+    <path d="M20 110 L100 18 L180 110Z" fill="${mine?"#E8792B":"#2F5D50"}"/>
+    <path d="M100 18 L180 110 L140 110 L100 48Z" fill="#000" opacity=".18"/>
+    <path d="M78 110 L100 45 L122 110Z" fill="${lit?"#ffe9b3":"#1B2A41"}" ${lit?'class="tglow"':""}/>
+    <path d="M20 110 L8 118 M180 110 L192 118" stroke="#8a7f66" stroke-width="2.5"/>
+    <circle cx="100" cy="14" r="3" fill="#c9bfa6"/></svg>`;
+}
+function renderTents(){
+  const ids=Object.keys(S.tents);
+  $("tentGrid").innerHTML = ids.length ? ids.map(id=>{const t=S.tents[id]; const m=t.members||[]; const mine=m.includes(me); const full=m.length>=t.cap;
+    return `<div class="tent ${mine?"mine":""} ${full&&!mine?"full":""}" onclick="toggleTent('${id}',this)">
+      <span class="kind">${t.own?"own tent":"rental"}</span>${tentSVG(m.length,t.cap,mine)}
+      <div class="tname">${esc(t.name)}</div><div class="slots">${m.length}/${t.cap} sleeping here ${full?"· full":""}</div>
+      <div class="mates">${m.map(pid=>`<span class="avatar" title="${esc(S.people[pid]?.name)}">${initials(S.people[pid]?.name)}</span>`).join("")||"<span class='hint'>empty — claim it</span>"}</div>
+      ${adminOK?`<button class="btn small danger" style="margin-top:.5rem" onclick="event.stopPropagation();delTent('${id}')">Delete</button>`:""}</div>`;
+  }).join("") : "<p class='hint'>No tents yet. Ozer adds rental tents in Settings once we know numbers — or add your own tent below.</p>";
+  const un=Object.keys(S.people).filter(pid=>S.people[pid].tent && !Object.values(S.tents).some(t=>(t.members||[]).includes(pid)));
+  $("unassigned").innerHTML=`<h3>Still tentless (${un.length})</h3>`+(un.length?un.map(pid=>`<span class="pill">${esc(S.people[pid].name)}</span>`).join(""):"<p class='hint'>Everyone who needs a tent has one. 🏕️</p>");
+}
+function toggleTent(id,el){
+  if(!needMe()) return; const t=S.tents[id]; t.members=t.members||[];
+  const i=t.members.indexOf(me);
+  if(i>=0){ t.members.splice(i,1); toast("Left "+t.name); }
+  else{
+    if(t.members.length>=t.cap) return toast(t.name+" is full");
+    Object.values(S.tents).forEach(o=>{o.members=(o.members||[]).filter(m=>m!==me)});
+    t.members.push(me); el&&el.classList.add("pop"); setTimeout(()=>el&&el.classList.remove("pop"),450); toast("You're in "+t.name+"!");
+  }
+  save();
+}
+function addOwnTent(){
+  if(!needMe()) return; const n=$("ownTentName").value.trim()||((S.people[me]?.name||"My")+"'s tent");
+  S.tents[uid()]={name:n,cap:Math.max(1,+$("ownTentCap").value||4),members:[me],own:true}; $("ownTentName").value=""; save();
+}
+function delTent(id){ if(confirm("Delete "+S.tents[id].name+"?")){ delete S.tents[id]; save(); } }
+
+/* ---------------- carpool ---------------- */
+function carSVG(color){
+  return `<svg viewBox="0 0 110 50" aria-hidden="true"><path d="M8 32 Q10 20 26 18 L38 8 Q40 6 44 6 L74 6 Q78 6 80 9 L90 18 Q104 20 104 30 L104 36 Q104 40 100 40 L12 40 Q8 40 8 36Z" fill="${color}"/><path d="M44 9 L42 18 L60 18 L60 9Z M64 9 L64 18 L80 18 L74 10Z" fill="#cfe8ff"/><g class="wheel"><circle cx="30" cy="40" r="8" fill="#222"/><circle cx="30" cy="40" r="3.5" fill="#999"/><rect x="29" y="33" width="2" height="14" fill="#999"/></g><g class="wheel"><circle cx="84" cy="40" r="8" fill="#222"/><circle cx="84" cy="40" r="3.5" fill="#999"/><rect x="83" y="33" width="2" height="14" fill="#999"/></g><circle cx="103" cy="30" r="2.5" fill="#ffe9a8"/></svg>`;
+}
+const CAR_COLORS=["#E8792B","#3F7A68","#5b7bb4","#b45b5b","#8a6bb4","#b49a5b"];
+function renderCars(){
+  const ids=Object.keys(S.cars);
+  /* animated road */
+  const road=$("road");
+  road.querySelectorAll(".car-drive").forEach(e=>e.remove());
+  (ids.length?ids:["demo"]).slice(0,4).forEach((id,i)=>{
+    const c=S.cars[id]; const d=document.createElement("div"); d.className="car-drive";
+    d.style.setProperty("--d",(6+i*2.2)+"s"); d.style.animationDelay=(i*1.6)+"s"; d.style.top=(10+i*24%60)+"px";
+    d.innerHTML=`<div class="lbl">${c?esc(S.people[c.driver]?.name||"?"):"add a car!"}</div>${carSVG(CAR_COLORS[i%CAR_COLORS.length])}`;
+    road.appendChild(d);
+  });
+  /* driver select */
+  const drivers=Object.entries(S.people).filter(([,p])=>p.drive);
+  $("carDriver").innerHTML=drivers.length?drivers.map(([id,p])=>`<option value="${id}">${esc(p.name)}</option>`).join(""):"<option value=''>no drivers yet</option>";
+  /* cards */
+  $("carGrid").innerHTML = ids.length ? ids.map((id,i)=>{const c=S.cars[id]; const riders=c.riders||[]; const mine=c.driver===me||riders.includes(me);
+    let seats=`<div class="seat driver" title="driver">🚗 ${esc(S.people[c.driver]?.name||"?")}</div>`;
+    for(let s=0;s<c.seats;s++){
+      const pid=riders[s];
+      seats+= pid ? `<div class="seat taken ${pid===me?"me":""}" ${pid===me?`onclick="leaveCar('${id}')" title="tap to hop out" style="cursor:pointer"`:""}>${esc(S.people[pid]?.name||"?")}</div>`
+                  : `<div class="seat" onclick="hopIn('${id}',this)">empty</div>`;
+    }
+    return `<div class="car ${mine?"mine":""}"><div class="row" style="justify-content:space-between"><b>${esc(c.name)}</b><span class="hint">${riders.length}/${c.seats} seats</span></div>${carSVG(CAR_COLORS[i%CAR_COLORS.length])}<div class="seats">${seats}</div>${(c.driver===me||adminOK)?`<button class="btn small danger" onclick="delCar('${id}')">Remove car</button>`:""}</div>`;
+  }).join("") : "<p class='hint'>No cars yet — drivers, add yours!</p>";
+  /* stats */
+  const need=Object.keys(S.people).filter(pid=>!S.people[pid].drive && !Object.values(S.cars).some(c=>(c.riders||[]).includes(pid)));
+  const free=ids.reduce((a,id)=>a+S.cars[id].seats-(S.cars[id].riders||[]).length,0);
+  $("rideStats").innerHTML=`<h3>Ride check</h3><p><b>${free}</b> free seat${free!==1?"s":""} · <b>${need.length}</b> still need a ride${need.length?": "+need.map(p=>esc(S.people[p].name)).join(", "):" — everyone's covered ✅"}</p>`;
+}
+function addCar(){
+  const d=$("carDriver").value; if(!d) return toast("Say you can drive on the Join page first");
+  if(Object.values(S.cars).some(c=>c.driver===d)) return toast("That driver already has a car");
+  S.cars[uid()]={driver:d,name:$("carName").value.trim()||esc(S.people[d].name)+"'s car",seats:Math.max(1,+$("carSeats").value||3),riders:[]};
+  $("carName").value=""; save();
+}
+function hopIn(id,el){
+  if(!needMe()) return; const c=S.cars[id];
+  if(c.driver===me) return toast("You're already driving this one");
+  Object.values(S.cars).forEach(o=>{o.riders=(o.riders||[]).filter(r=>r!==me)});
+  c.riders=c.riders||[]; if(c.riders.length>=c.seats) return toast("Car is full");
+  c.riders.push(me); el&&el.classList.add("hop"); toast("Hopped into "+c.name+" 🚗"); save();
+}
+function leaveCar(id){ const c=S.cars[id]; c.riders=(c.riders||[]).filter(r=>r!==me); toast("Hopped out"); save(); }
+function delCar(id){ if(confirm("Remove this car?")){ delete S.cars[id]; save(); } }
+
+/* ---------------- shopping ---------------- */
+function renderShopping(){
+  const cats=["Food","Drinks","Cooking","Camp gear","Fire","Safety & hygiene","Fun","Other"];
+  const items=Object.entries(S.shopping).sort((a,b)=>(a[1].order??99)-(b[1].order??99));
+  const done=items.filter(([,i])=>i.done).length, total=items.reduce((a,[,i])=>a+(+i.cost||0),0);
+  $("shProgress").textContent=done+"/"+items.length+" bought"; $("shTotal").textContent="≈ $"+total+" total";
+  const opts=id=>`<option value="">unclaimed</option>`+Object.entries(S.people).map(([pid,p])=>`<option value="${pid}" ${S.shopping[id].who===pid?"selected":""}>${esc(p.name)}</option>`).join("");
+  $("shopList").innerHTML=cats.map(cat=>{
+    const its=items.filter(([,i])=>i.cat===cat&&!(hideDone&&i.done)); if(!its.length) return "";
+    return `<div class="shop-cat">${cat}</div>`+its.map(([id,i])=>`<div class="item ${i.done?"done":""}"><input type="checkbox" ${i.done?"checked":""} onchange="S.shopping['${id}'].done=this.checked;save()"><div class="txt">${esc(i.item)}<small>${i.cost?"~$"+i.cost+" · ":""}${i.who&&S.people[i.who]?"claimed by "+esc(S.people[i.who].name):"nobody claimed this yet"}</small></div><div class="row" style="gap:.3rem"><select onchange="S.shopping['${id}'].who=this.value;save()">${opts(id)}</select><button class="x" onclick="if(confirm('Delete item?')){delete S.shopping['${id}'];save()}">✕</button></div></div>`).join("");
+  }).join("")||"<p class='hint'>List is empty.</p>";
+}
+function addItem(){
+  const t=$("shItem").value.trim(); if(!t) return toast("Type an item");
+  S.shopping[uid()]={item:t,cat:$("shCat").value,cost:+$("shCost").value||0,who:me||"",done:false,order:Date.now()};
+  $("shItem").value="";$("shCost").value=""; toast("Added to the list"); save();
+}
+function toggleDone(){ hideDone=!hideDone; renderShopping(); }
+
+/* ---------------- plan ---------------- */
+function renderPlan(){
+  const st=S.settings;
+  $("planLead").textContent = st.dateStatus==="set"
+    ? (st.nights>=2?"Two days, one night":"One big day")+" at World's End. Times are a plan, not a law."
+    : "Drafted for a 2-day / 1-night trip. If the vote lands on a single day we squeeze the best parts into Day 1 — Ozer trims it in Settings.";
+  $("dayTabs").innerHTML=S.plan.map((d,i)=>`<button class="${i===curDay?"active":""}" onclick="curDay=${i};renderPlan()">${esc(d.title)}</button>`).join("");
+  const day=S.plan[curDay]||S.plan[0];
+  $("timeline").innerHTML=(day?.items||[]).map(e=>`<div class="ev"><time>${esc(e.t)}</time><div>${esc(e.x)}</div></div>`).join("")||"<p class='hint'>Empty day.</p>";
+  $("jobs").innerHTML=S.settings.jobs.map(j=>{const pid=S.jobs[j]; const mine=pid===me;
+    return `<button class="btn small ${pid?(mine?"ember":""):"ghost"}" style="margin:.2rem" onclick="claimJob('${esc(j)}')">${esc(j)}${pid?" — "+esc(S.people[pid]?.name||"?"):""}</button>`;}).join("");
+}
+function claimJob(j){
+  if(!needMe()) return;
+  if(S.jobs[j]===me) delete S.jobs[j];
+  else if(S.jobs[j]) return toast(S.people[S.jobs[j]]?.name+" has that one — ask them nicely");
+  else S.jobs[j]=me;
+  save();
+}
+
+/* ---------------- guide ---------------- */
+const GUIDE=[
+["What to wear & pack (per person)",["Layers beat one big jacket: t-shirt + fleece + rain jacket. Nights get cold even in summer — canyon air drops fast.","Closed shoes you can get muddy, plus dry socks in a ziplock (non-negotiable happiness item).","Warm hat for sleeping. You lose most heat through your head in a sleeping bag.","Headlamp > phone flashlight. Your hands will be holding marshmallows.","Reusable water bottle, sunscreen, bug spray, any meds you take.","Pack in a duffel or backpack, not a suitcase. Trash bag as a waterproof liner works great."]],
+["Setting up the tent (first-timers)",["Pitch before dark, before anything else. It takes 15 min when fresh, 45 when tired and dark.","Pick flat ground, no rocks/roots, never the low spot (rain pools there). Door away from wind.","Tarp under the tent, folded so no edge sticks out (sticking-out edges funnel rain UNDER you).","Stakes go in at 45° leaning away from the tent. Use a rock as a hammer.","Practice once on campus with the rental before the trip — seriously, it turns chaos into a party trick."]],
+["Sleeping warm",["Sleeping pad is not for comfort — it's insulation. The ground steals heat all night.","Change into dry clothes before bed. The day's slightly-sweaty shirt will freeze you.","Don't sleep with your face inside the bag; breath moisture makes it damp and cold.","Put tomorrow's clothes in the bag's stuff sack — instant pillow."]],
+["Campfire rules",["Fires only in the fire ring. Buy firewood at the park — bringing outside wood spreads invasive insects and is prohibited.","Build small: teepee of small sticks over a fire starter, add bigger wood as it catches.","Never leave it unattended. Before bed: drown, stir, drown again — cold to the touch.","Nothing melts in the fire (cans, plastic, foil). Pack it out."]],
+["Food & wildlife",["All food, trash, and anything scented (toothpaste, deodorant) sleeps in the CARS, never the tents. Black bears live here; raccoons definitely visit.","Cooler stays in the shade, opened as little as possible. Freeze water bottles as extra ice.","Cook and eat away from the tents. Wash dishes right after dinner, dump grey water at the utility drain."]],
+["Bathrooms & staying clean",["The campground has flush toilets and showers — bring flip-flops and quarters just in case.","Hand sanitizer before every meal. Camp stomach bugs come from hands, not the woods.","Ticks are real in PA: spray shoes and ankles, do a tick check each night, and bring tweezers."]],
+["Leave No Trace",["Whatever comes in, goes out — do a full sweep of the site before leaving.","Stay on trails; the canyon edges are steep and eroded.","Quiet hours 9 PM–8 AM. Bluetooth speaker = campfire volume, not party volume."]],
+["Phones & navigation",["Assume zero signal at the park. Download offline Google Maps for Sullivan County + this page works offline once loaded.","Tell someone at home the plan. Agree on a meet spot at camp in case anyone wanders.","Battery banks charged; phones on low-power. The stars are better than the screen anyway."]]
+];
+function renderGuide(){
+  $("guideList").innerHTML=GUIDE.map(([t,items],i)=>`<details ${i===0?"open":""}><summary>${t}</summary><ul>${items.map(x=>`<li>${x}</li>`).join("")}</ul></details>`).join("");
+}
+
+/* ---------------- settings (password "ozer") ---------------- */
+function unlock(){
+  if($("pw").value===S.settings.password){ adminOK=true; $("lockBox").style.display="none"; $("settingsBox").style.display="block"; renderSettings(); render(); toast("Welcome, trip boss 🧭"); }
+  else toast("Wrong password");
+}
+function renderSettings(){
+  const st=S.settings;
+  $("settingsBox").innerHTML=`
+  <div class="sgroup card"><h3>Trip basics</h3>
+    <label>Trip title</label><input id="sTitle" value="${esc(st.title)}">
+    <label>Intro text</label><textarea id="sLead" rows="3">${esc(st.lead)}</textarea>
+    <label>Date status</label>
+    <select id="sStatus"><option value="tbd" ${st.dateStatus==="tbd"?"selected":""}>Not decided — show the vote</option><option value="set" ${st.dateStatus==="set"?"selected":""}>Locked in</option></select>
+    <div class="two"><div><label>Start date</label><input type="date" id="sStart" value="${st.start}"></div><div><label>End date (same as start = day trip)</label><input type="date" id="sEnd" value="${st.end}"></div></div>
+    <label>Nights (0 = day trip, 1 = one night…)</label><input type="number" id="sNights" min="0" max="7" value="${st.nights}">
+  </div>
+  <div class="sgroup card"><h3>Meeting & park</h3>
+    <div class="two"><div><label>Meeting place</label><input id="sMeetPlace" value="${esc(st.meetPlace)}"></div><div><label>Meeting time</label><input id="sMeetTime" value="${esc(st.meetTime)}"></div></div>
+    <label>Meeting note</label><textarea id="sMeetNote" rows="2">${esc(st.meetNote)}</textarea>
+    <label>Campsite (number / loop once reserved)</label><input id="sSite" value="${esc(st.park.site)}">
+    <label>Reservation info</label><textarea id="sReserve" rows="2">${esc(st.park.reserve)}</textarea>
+    <label>Park notes</label><textarea id="sParkNotes" rows="3">${esc(st.park.notes)}</textarea>
+    <label>Emergency text</label><textarea id="sEmergency" rows="2">${esc(st.emergency)}</textarea>
+  </div>
+  <div class="sgroup card"><h3>Rentals & tents</h3>
+    <label>People per rental tent</label><input type="number" id="sTentSize" min="1" max="8" value="${st.tentSize}">
+    <label>Rental note (shown on Join page)</label><textarea id="sRentalNote" rows="2">${esc(st.rentalNote)}</textarea>
+    <div class="row" style="margin-top:.6rem"><button class="btn small" onclick="autoTents()">Auto-create rental tents from headcount</button><span class="hint">makes the right number of ${st.tentSize}-person tents</span></div>
+    <div class="row" style="margin-top:.4rem"><input id="sNewTent" placeholder="Add a tent by name" style="max-width:220px"><input id="sNewTentCap" type="number" value="${st.tentSize}" min="1" max="8" style="max-width:80px"><button class="btn small" onclick="adminAddTent()">Add tent</button></div>
+  </div>
+  <div class="sgroup card"><h3>Costs</h3>
+    <div class="two"><div><label>Campsite cost $</label><input type="number" id="sSiteCost" value="${st.siteCost}"></div><div><label>Gas per car $</label><input type="number" id="sGas" value="${st.gasPerCar}"></div></div>
+    <div class="two"><div><label>Rental per person $</label><input type="number" id="sRentCost" value="${st.rentalPerPerson}"></div><div><label>Extra food budget $</label><input type="number" id="sFood" value="${st.foodBudget}"></div></div>
+  </div>
+  <div class="sgroup card"><h3>Plan editor</h3><p class="hint">Edit times and activities. Remove Day 2 entirely if the vote says day-trip.</p><div class="plan-editor" id="planEditor"></div>
+    <div class="row"><button class="btn small" onclick="addPlanDay()">Add day</button></div>
+  </div>
+  <div class="sgroup card"><h3>Camp jobs</h3><label>One per line</label><textarea id="sJobs" rows="4">${st.jobs.join("\n")}</textarea></div>
+  <div class="sgroup card"><h3>Danger zone</h3>
+    <label>Change password</label><input id="sPw" value="${esc(st.password)}">
+    <div class="row" style="margin-top:.8rem"><button class="btn small danger" onclick="if(confirm('Clear ALL votes?')){S.poll={};save()}">Clear date votes</button>
+    <button class="btn small danger" onclick="if(confirm('Reset shopping list to defaults?')){S.shopping={};seedShopping();save()}">Reset shopping list</button>
+    <button class="btn small danger" onclick="if(confirm('Remove EVERYTHING (people, tents, cars) and start over?')){const s=S.settings;S=normalize(null);S.settings=s;seedShopping();save()}">Full reset</button></div>
+  </div>
+  <button class="btn ember" onclick="saveSettings()">Save all settings</button>`;
+  renderPlanEditor();
+}
+function renderPlanEditor(){
+  $("planEditor").innerHTML=S.plan.map((d,di)=>`
+    <div style="margin:.8rem 0;padding:.6rem;background:var(--canvas);border-radius:10px">
+    <div class="row" style="justify-content:space-between"><input value="${esc(d.title)}" onchange="S.plan[${di}].title=this.value" style="max-width:160px;font-weight:700"><button class="btn small danger" onclick="if(confirm('Delete ${esc(d.title)}?')){S.plan.splice(${di},1);curDay=0;save();renderPlanEditor()}">Delete day</button></div>
+    ${d.items.map((e,ei)=>`<div class="ev-row"><input value="${esc(e.t)}" onchange="S.plan[${di}].items[${ei}].t=this.value"><input value="${esc(e.x)}" onchange="S.plan[${di}].items[${ei}].x=this.value"><button class="x" onclick="S.plan[${di}].items.splice(${ei},1);save();renderPlanEditor()">✕</button></div>`).join("")}
+    <button class="btn small ghost" onclick="S.plan[${di}].items.push({t:'',x:''});renderPlanEditor()">+ event</button></div>`).join("");
+}
+function addPlanDay(){ S.plan.push({title:"Day "+(S.plan.length+1),items:[{t:"9:00 AM",x:"New activity"}]}); renderPlanEditor(); }
+function autoTents(){
+  const need=Object.values(S.people).filter(p=>p.tent).length;
+  const have=Object.values(S.tents).filter(t=>!t.own).length;
+  const want=Math.ceil(need/(S.settings.tentSize||4));
+  for(let i=have;i<want;i++) S.tents[uid()]={name:"Tent "+String.fromCharCode(65+i),cap:S.settings.tentSize||4,members:[],own:false};
+  toast(want<=have?"Already enough tents":"Created "+(want-have)+" tent(s)"); save();
+}
+function adminAddTent(){ const n=$("sNewTent").value.trim()||"Tent "+(Object.keys(S.tents).length+1); S.tents[uid()]={name:n,cap:+$("sNewTentCap").value||4,members:[],own:false}; $("sNewTent").value=""; save(); }
+function saveSettings(){
+  const st=S.settings;
+  st.title=$("sTitle").value; st.lead=$("sLead").value; st.dateStatus=$("sStatus").value; st.start=$("sStart").value; st.end=$("sEnd").value; st.nights=+$("sNights").value||0;
+  st.meetPlace=$("sMeetPlace").value; st.meetTime=$("sMeetTime").value; st.meetNote=$("sMeetNote").value;
+  st.park.site=$("sSite").value; st.park.reserve=$("sReserve").value; st.park.notes=$("sParkNotes").value; st.emergency=$("sEmergency").value;
+  st.tentSize=+$("sTentSize").value||4; st.rentalNote=$("sRentalNote").value;
+  st.siteCost=+$("sSiteCost").value||0; st.gasPerCar=+$("sGas").value||0; st.rentalPerPerson=+$("sRentCost").value||0; st.foodBudget=+$("sFood").value||0;
+  st.jobs=$("sJobs").value.split("\n").map(x=>x.trim()).filter(Boolean);
+  const pw=$("sPw").value.trim(); if(pw) st.password=pw;
+  toast("Settings saved ⛺"); save();
+}
+
+/* ---------------- start ---------------- */
+boot();
+go(location.hash.replace("#","")||"trip");
+</script>
+</body>
+</html>
