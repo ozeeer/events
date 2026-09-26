@@ -699,10 +699,10 @@ function addExpense(){
 }
 function delExpense(id){ if(confirm("Delete this expense?")){ delete S.expenses[id]; save(); } }
 /* weather */
-fetch("https://api.open-meteo.com/v1/forecast?latitude=41.31&longitude=-76.31&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=celsius&timezone=America%2FNew_York").then(r=>r.json()).then(w=>{
+fetch("https://api.open-meteo.com/v1/forecast?latitude=41.31&longitude=-76.31&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=celsius&timezone=America%2FNew_York").then(r=>r.json()).then(w=>{
   const ic=c=>c===0?"☀️":c<3?"🌤️":c<50?"☁️":c<70?"🌧️":c<80?"❄️":c<90?"🌦️":"⛈️";
-  $("wx").innerHTML=w.daily.time.map((d,i)=>`<div><div>${new Date(d+"T12:00").toLocaleDateString(undefined,{weekday:"short"})}</div><div style="font-size:1.4rem">${ic(w.daily.weathercode[i])}</div><div class="t">${Math.round(w.daily.temperature_2m_max[i])}°</div><div class="hint">${Math.round(w.daily.temperature_2m_min[i])}° · ${w.daily.precipitation_probability_max[i]}%</div></div>`).join("");
-}).catch(()=>{$("wx").innerHTML="<span class='hint'>Forecast unavailable right now.</span>";});
+  $("wx").innerHTML=w.daily.time.map((d,i)=>`<div><div>${new Date(d+"T12:00").toLocaleDateString(undefined,{weekday:"short"})}</div><div style="font-size:1.4rem">${ic(w.daily.weather_code[i])}</div><div class="t">${Math.round(w.daily.temperature_2m_max[i])}°</div><div class="hint">${Math.round(w.daily.temperature_2m_min[i])}° · ${w.daily.precipitation_probability_max[i]}%</div></div>`).join("");
+}).catch(e=>{$("wx").innerHTML="<span class='hint'>Forecast unavailable right now ("+e.message+").</span>";});
 
 /* ---------------- people / join ---------------- */
 let editingId = null;
