@@ -395,7 +395,7 @@ footer{text-align:center;padding:2rem 1rem;color:var(--ink-2);font-size:.85rem}
   <div class="cars" id="carGrid"></div>
   <div class="card" style="margin-top:1.2rem">
     <h3>Add your car</h3>
-    <p class="hint">Only people who said they can drive show up here.</p>
+    <p class="hint">Pick anyone from the trip as the driver — no need to set anything on Join first.</p>
     <div class="row"><select id="carDriver" style="max-width:220px"></select><input id="carName" placeholder="Car (e.g. grey Civic)" style="max-width:200px"><input id="carSeats" type="number" min="1" max="7" value="3" style="max-width:80px" title="passenger seats"><button class="btn small" onclick="addCar()">Add car</button></div>
   </div>
   <div class="card creek" id="rideStats"></div>
@@ -854,9 +854,9 @@ function renderCars(){
     d.innerHTML=`<div class="lbl">${c?esc(S.people[c.driver]?.name||"?"):"add a car!"}</div>${carSVG(CAR_COLORS[i%CAR_COLORS.length])}`;
     road.appendChild(d);
   });
-  /* driver select */
-  const drivers=Object.entries(S.people).filter(([,p])=>p.drive);
-  $("carDriver").innerHTML=drivers.length?drivers.map(([id,p])=>`<option value="${id}">${esc(p.name)}</option>`).join(""):"<option value=''>no drivers yet</option>";
+  /* driver select — anyone already on the trip can be picked as a driver, no need to have set "I can drive" on Join */
+  const peopleForDriver=Object.entries(S.people).filter(([id])=>!Object.values(S.cars).some(c=>c.driver===id));
+  $("carDriver").innerHTML=peopleForDriver.length?peopleForDriver.map(([id,p])=>`<option value="${id}">${esc(p.name)}</option>`).join(""):"<option value=''>everyone already has a car</option>";
   /* cards */
   $("carGrid").innerHTML = ids.length ? ids.map((id,i)=>{const c=S.cars[id]; const riders=c.riders||[]; const mine=c.driver===me||riders.includes(me);
     let seats=`<div class="seat driver" title="driver">🚗 ${esc(S.people[c.driver]?.name||"?")}</div>`;
@@ -873,9 +873,11 @@ function renderCars(){
   $("rideStats").innerHTML=`<h3>Ride check</h3><p><b>${free}</b> free seat${free!==1?"s":""} · <b>${need.length}</b> still need a ride${need.length?": "+need.map(p=>esc(S.people[p].name)).join(", "):" — everyone's covered ✅"}</p>`;
 }
 function addCar(){
-  const d=$("carDriver").value; if(!d) return toast("Say you can drive on the Join page first");
+  const d=$("carDriver").value; if(!d) return toast("Pick a driver first");
   if(Object.values(S.cars).some(c=>c.driver===d)) return toast("That driver already has a car");
-  S.cars[uid()]={driver:d,name:$("carName").value.trim()||esc(S.people[d].name)+"'s car",seats:Math.max(1,+$("carSeats").value||3),riders:[]};
+  const seats=Math.max(1,+$("carSeats").value||3);
+  S.cars[uid()]={driver:d,name:$("carName").value.trim()||esc(S.people[d].name)+"'s car",seats,riders:[]};
+  S.people[d].drive=true; S.people[d].seats=seats;
   $("carName").value=""; save();
 }
 function hopIn(id,el){
@@ -886,7 +888,7 @@ function hopIn(id,el){
   c.riders.push(me); el&&el.classList.add("hop"); toast("Hopped into "+c.name+" 🚗"); save();
 }
 function leaveCar(id){ const c=S.cars[id]; c.riders=(c.riders||[]).filter(r=>r!==me); toast("Hopped out"); save(); }
-function delCar(id){ if(confirm("Remove this car?")){ delete S.cars[id]; save(); } }
+function delCar(id){ if(confirm("Remove this car?")){ const d=S.cars[id]?.driver; delete S.cars[id]; if(d && S.people[d]) S.people[d].drive=false; save(); } }
 
 /* ---------------- shopping ---------------- */
 function renderShopping(){
