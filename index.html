@@ -176,6 +176,16 @@ th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid var(--canvas-2
 .item .x{background:none;border:none;color:var(--warn);font-size:1.1rem;padding:.2rem .4rem}
 .addrow{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:.5rem;align-items:end}
 @media (max-width:600px){.addrow{grid-template-columns:1fr 1fr}.addrow .btn{grid-column:span 2}}
+.addrow-ex{grid-template-columns:1.6fr .9fr 1.1fr auto}
+@media (max-width:600px){.addrow-ex{grid-template-columns:1fr 1fr}.addrow-ex .btn{grid-column:span 2}}
+.expense-row{display:grid;grid-template-columns:1fr auto auto;gap:.5rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--canvas-2)}
+.expense-row .paidby{font-size:.78rem;color:var(--ink-2);display:block}
+.expense-row .amt{font-weight:700;font-family:var(--font-display);font-size:1.05rem;white-space:nowrap}
+.expense-total{display:flex;justify-content:space-between;padding:.7rem 0 .2rem;font-weight:700;border-top:2px solid var(--ink);margin-top:.2rem}
+.settle-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:.6rem;align-items:center;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.12)}
+.settle-row:last-child{border:none}
+.settle-row .amt{font-weight:700;font-family:var(--font-display);white-space:nowrap}
+.settle-row .avatar{width:28px;height:28px;font-size:.72rem;background:rgba(255,255,255,.18)}
 
 /* ---------- SETTINGS ---------- */
 .lock{text-align:center;padding:2rem 1rem}
@@ -324,7 +334,7 @@ footer{text-align:center;padding:2rem 1rem;color:var(--ink-2);font-size:.85rem}
   <div class="card">
     <h3>Expenses & who owes what</h3>
     <p class="hint">Log anything you paid for — gas, shopping run, ice, whatever. Splits evenly across everyone who's joined, and settles up at the end.</p>
-    <div class="addrow" style="grid-template-columns:2fr 1fr 1.4fr auto">
+    <div class="addrow addrow-ex">
       <div><label>What</label><input id="exDesc" placeholder="e.g. Gas for the drive"></div>
       <div><label>Amount $</label><input id="exAmt" type="number" min="0" step="0.01" placeholder="0"></div>
       <div><label>Paid by</label><select id="exWho"></select></div>
@@ -690,13 +700,11 @@ function renderExpenses(){
     sel.innerHTML = peopleIds.length ? peopleIds.map(id=>`<option value="${id}" ${id===me?"selected":""}>${esc(S.people[id].name)}</option>`).join("") : "<option value=''>join first</option>";
     if(cur && S.people[cur]) sel.value = cur; else if(me && S.people[me]) sel.value = me;
   }
-  const rows = Object.entries(S.expenses||{}).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
+  const rows = Object.entries(S.expenses||{}).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
   const total = rows.reduce((a,[,e])=>a+(+e.amt||0),0);
-  $("expenseList").innerHTML = rows.length ? `<table><tr><th>What</th><th>Paid by</th><th>Amount</th><th></th></tr>${
-    rows.map(([id,e])=>`<tr><td>${esc(e.desc)}</td><td>${esc(S.people[e.who]?.name||"?")}</td><td>$${(+e.amt).toFixed(2)}</td><td><button class="x" onclick="delExpense('${id}')">✕</button></td></tr>`).join("")
-  }<tr><th colspan="2">Total spent</th><th>$${total.toFixed(2)}</th><th></th></tr></table>` : "<p class='hint'>No expenses logged yet.</p>";
+  $("expenseList").innerHTML = rows.length ? rows.map(([id,e])=>`<div class="expense-row"><div>${esc(e.desc)}<span class="paidby">paid by ${esc(S.people[e.who]?.name||"?")}</span></div><div class="amt">$${(+e.amt).toFixed(2)}</div><button class="x" onclick="delExpense('${id}')" title="delete">✕</button></div>`).join("") + `<div class="expense-total"><span>Total spent</span><span>$${total.toFixed(2)}</span></div>` : "<p class='hint'>No expenses logged yet.</p>";
   const n = peopleIds.length;
-  if(!n || !rows.length){ $("settleUp").innerHTML = rows.length ? "<p class='hint' style='margin:0'>Add people on the Join page to split this.</p>" : ""; return; }
+  if(!n || !rows.length){ $("settleUp").innerHTML = rows.length ? "<p class='hint' style='margin:0;color:#fff'>Add people on the Join page to split this.</p>" : ""; return; }
   const fair = total / n;
   const paid = {}; peopleIds.forEach(id=>paid[id]=0);
   rows.forEach(([,e])=>{ if(paid[e.who]!==undefined) paid[e.who]+=(+e.amt||0); });
@@ -706,12 +714,22 @@ function renderExpenses(){
   const settlements=[]; let i=0,j=0; const o2=owe.map(p=>({...p})), w2=owed.map(p=>({...p}));
   while(i<o2.length && j<w2.length){
     const amt=Math.min(-o2[i].net, w2[j].net);
-    if(amt>0.01) settlements.push(`${esc(o2[i].name)} owes ${esc(w2[j].name)} $${amt.toFixed(2)}`);
+    if(amt>0.01) settlements.push({from:o2[i].name, to:w2[j].name, amt});
     o2[i].net+=amt; w2[j].net-=amt;
     if(Math.abs(o2[i].net)<0.01) i++; if(Math.abs(w2[j].net)<0.01) j++;
   }
-  $("settleUp").innerHTML = `<h3 style="color:#fff">Fair share: $${fair.toFixed(2)}/person</h3>` +
-    (settlements.length ? `<p>${settlements.join("<br>")}</p>` : "<p>Everyone's even. 🎉</p>");
+  $("settleUp").innerHTML = `<div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="color:#fff;margin:0">Settle up</h3><span class="hint" style="color:rgba(255,255,255,.7)">fair share $${fair.toFixed(2)}/person</span></div>` +
+    (settlements.length
+      ? (()=>{
+          const byCreditor={};
+          settlements.forEach(s=>{ (byCreditor[s.to]=byCreditor[s.to]||[]).push(s); });
+          return Object.entries(byCreditor).map(([to,list])=>
+            `<div style="margin-top:.6rem"><p class="hint" style="color:rgba(255,255,255,.7);margin:0 0 .3rem">Owed to <b style="color:#fff">${esc(to)}</b></p>` +
+            list.map(s=>`<div class="settle-row"><span class="avatar">${initials(s.from)}</span><b>${esc(s.from)}</b><span></span><span class="amt">$${s.amt.toFixed(2)}</span></div>`).join("") +
+            `</div>`
+          ).join("");
+        })()
+      : `<p style="color:#fff;margin:.5rem 0 0">Everyone's even. 🎉</p>`);
 }
 function addExpense(){
   if(!needMe()) return;
