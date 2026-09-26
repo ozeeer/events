@@ -436,7 +436,7 @@ footer{text-align:center;padding:2rem 1rem;color:var(--ink-2);font-size:.85rem}
 </section>
 </main>
 
-<div class="who" id="whoBox" onclick="go('join')">You are: <b id="whoName">not set</b> <span class="hint">tap to change</span></div>
+<div class="who" id="whoBox" onclick="pickMe()">You are: <b id="whoName">not set</b> <span class="hint">tap to change</span></div>
 <div class="toast" id="toast"></div>
 <footer>Made by Ozer · Ricketts Glen State Park · <span id="syncState"></span></footer>
 
@@ -464,7 +464,7 @@ const DEFAULT = {
     title:"Ricketts Glen", lead:"A weekend of waterfalls, campfire, and Lake Jean at Ricketts Glen State Park — two campsites, four tents, twelve of us. Falls hike Saturday morning, camp Saturday–Sunday.",
     dateStatus:"set", start:"2026-10-03", end:"2026-10-04", nights:1,
     meetPlace:"Millennium Science Complex (MSC), Penn State", meetTime:"9:00 AM", meetNote:"No formal carpool sign-up needed — we're driving together as a convoy. Meet at MSC at 9, top off gas before we leave, and stay together on the ~1.5–2 hr drive to Ricketts Glen.",
-    park:{name:"Ricketts Glen State Park", addr:"695 PA-487, Benton, PA 17814", phone:"(570) 477-5675", reserve:"Booked: Campsites 47 & 49, Lake Jean Family Campground (2 sites, 4 tents total, up to 2 tents per site).", site:"Campsites 47 & 49 — Lake Jean Family Campground", notes:"Both sites are next to each other, near the Lake Jean access. Flush toilets and showers on-site. Cell signal is weak in the canyon — download offline maps beforehand. Quiet hours are posted at the camp office — read the sign when we check in."},
+    park:{name:"Ricketts Glen State Park", addr:"695 PA-487, Benton, PA 17814", phone:"(570) 477-5675", reserve:"Booked: Campsites 47 & 49, Lake Jean Family Campground (2 sites, 4 tents total, up to 2 tents per site).", site:"Campsites 47 & 49 — Lake Jean Family Campground", mapLink:"https://maps.app.goo.gl/hDsPqipPEf6gpnMy5?g_st=ic", notes:"Both sites are next to each other, near the Lake Jean access. Flush toilets and showers on-site. Cell signal is weak in the canyon — download offline maps beforehand. Quiet hours are posted at the camp office — read the sign when we check in."},
     tentSize:4, rentalNote:"Renting from Penn State Outdoor Adventures (Intramural Building): four tents (6P/4P/3P/2P), a stove, a cooler, 12 sleeping bags, 12 pads, 6 headlamps. Ozer picks everything up based on who's joined below.",
     rentalItems:[
       {n:"6-Person Tent",q:1,p:24},{n:"4-Person Tent",q:1,p:15},{n:"3-Person Tent",q:1,p:12},{n:"2-Person Tent",q:1,p:10},
@@ -638,10 +638,28 @@ function renderPoll(){
 }
 function addPollOption(){ const d=$("pollNew").value; if(!d) return toast("Pick a date first"); if(Object.values(S.poll).some(o=>o.date===d)) return toast("Already listed"); S.poll[uid()]={date:d,votes:[]}; $("pollNew").value=""; save(); }
 function vote(id){ if(!needMe()) return; const o=S.poll[id]; o.votes=o.votes||[]; const i=o.votes.indexOf(me); i>=0?o.votes.splice(i,1):o.votes.push(me); save(); }
-function needMe(){ if(me&&S.people[me]) return true; toast("Add yourself on the Join page first"); go("join"); return false; }
+function needMe(){ if(me&&S.people[me]) return true; pickMe(); return false; }
+function pickMe(){
+  const ids=Object.keys(S.people);
+  if(!ids.length){ go("join"); return; }
+  const ov=document.createElement("div");
+  ov.className="modal-ov";
+  ov.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:flex;align-items:center;justify-content:center;padding:1rem";
+  ov.onclick=e=>{ if(e.target===ov) ov.remove(); };
+  const box=document.createElement("div");
+  box.className="card"; box.style.cssText="max-width:360px;width:100%;max-height:80vh;overflow:auto;margin:0";
+  box.innerHTML = `<h3>Who are you?</h3><p class="hint">Tap your name — you can change this anytime from the same spot.</p>`
+    + ids.map(id=>`<button class="btn ghost" style="display:block;width:100%;margin:.3rem 0;text-align:left" data-id="${id}">${esc(S.people[id].name)}</button>`).join("")
+    + `<p class="hint" style="margin-top:.6rem">Not on the list? <a href="#" onclick="event.preventDefault();this.closest('.modal-ov').remove();go('join')">Add yourself</a></p>`
+    + `<button class="btn small ghost" style="margin-top:.4rem" onclick="this.closest('.modal-ov').remove()">Cancel</button>`;
+  box.querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>{
+    me=b.dataset.id; localStorage.setItem(TRIP_KEY+":me", me); ov.remove(); toast("You're "+S.people[me].name+" now 🏕️"); render();
+  });
+  ov.appendChild(box); document.body.appendChild(ov);
+}
 function renderPark(){
   const p=S.settings.park;
-  $("parkInfo").innerHTML=`<p><b>${esc(p.name)}</b><br>${esc(p.addr)}<br>Park office: ${esc(p.phone)}</p><p><b>Campsite:</b> ${esc(p.site)}</p><p>${esc(p.reserve)}</p><p class="hint">${esc(p.notes)}</p><p><a class="btn small ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+p.addr)}">Open in Maps</a></p>`;
+  $("parkInfo").innerHTML=`<p><b>${esc(p.name)}</b><br>${esc(p.addr)}<br>Park office: ${esc(p.phone)}</p><p><b>Campsite:</b> ${esc(p.site)}</p><p>${esc(p.reserve)}</p><p class="hint">${esc(p.notes)}</p><p><a class="btn small ghost" target="_blank" rel="noopener" href="${esc(p.mapLink || ("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" "+p.addr)))}">Open in Maps</a></p>`;
   const st=S.settings; $("meetInfo").innerHTML=`<p><b>${esc(st.meetPlace)}</b> at <b>${esc(st.meetTime)}</b>${st.dateStatus==="set"&&st.start?" on "+fmt(st.start).long:""}</p><p>${esc(st.meetNote)}</p>`;
   $("emergency").innerHTML=`<p>${esc(st.emergency)}</p>`;
 }
@@ -927,6 +945,7 @@ function renderSettings(){
     <label>Meeting note</label><textarea id="sMeetNote" rows="2">${esc(st.meetNote)}</textarea>
     <div class="two"><div><label>Park name</label><input id="sParkName" value="${esc(st.park.name)}"></div><div><label>Park phone</label><input id="sParkPhone" value="${esc(st.park.phone)}"></div></div>
     <label>Park address</label><input id="sParkAddr" value="${esc(st.park.addr)}">
+    <label>Exact map link (Google Maps share link for the campsite pin)</label><input id="sParkMapLink" value="${esc(st.park.mapLink||"")}" placeholder="https://maps.app.goo.gl/...">
     <label>Campsite (number / loop once reserved)</label><input id="sSite" value="${esc(st.park.site)}">
     <label>Reservation info</label><textarea id="sReserve" rows="2">${esc(st.park.reserve)}</textarea>
     <label>Park notes</label><textarea id="sParkNotes" rows="3">${esc(st.park.notes)}</textarea>
@@ -983,7 +1002,7 @@ function saveSettings(){
   const st=S.settings;
   st.title=$("sTitle").value; st.lead=$("sLead").value; st.dateStatus=$("sStatus").value; st.start=$("sStart").value; st.end=$("sEnd").value; st.nights=+$("sNights").value||0;
   st.meetPlace=$("sMeetPlace").value; st.meetTime=$("sMeetTime").value; st.meetNote=$("sMeetNote").value;
-  st.park.name=$("sParkName").value; st.park.phone=$("sParkPhone").value; st.park.addr=$("sParkAddr").value;
+  st.park.name=$("sParkName").value; st.park.phone=$("sParkPhone").value; st.park.addr=$("sParkAddr").value; st.park.mapLink=$("sParkMapLink").value;
   st.park.site=$("sSite").value; st.park.reserve=$("sReserve").value; st.park.notes=$("sParkNotes").value; st.emergency=$("sEmergency").value;
   st.hike = st.hike||{}; st.hike.name=$("sHikeName").value; st.hike.dist=$("sHikeDist").value; st.hike.elev=$("sHikeElev").value; st.hike.trailhead=$("sHikeTrailhead").value; st.hike.notes=$("sHikeNotes").value;
   st.tentSize=+$("sTentSize").value||4; st.rentalNote=$("sRentalNote").value;
