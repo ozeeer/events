@@ -549,7 +549,14 @@ function normalize(s){
 }
 function seedShopping(){ if(Object.keys(S.shopping).length) return; DEFAULT_SHOPPING.forEach(([item,cat,cost],i)=>{S.shopping["d"+i]={item,cat,cost,who:"",done:false,order:i}}); }
 function save(){
-  if(db){ db.ref(TRIP_KEY).set(S); }
+  if(db){
+    db.ref(TRIP_KEY).set(S).catch(err=>{
+      toast("Save failed: "+err.message);
+      $("syncBanner").style.display="block";
+      $("syncBanner").textContent = "Your last change didn't save (" + err.message + "). Check the Firebase Realtime Database rules — the path 'worldsend-trip' needs .write set to true.";
+      $("syncState").textContent = "save error";
+    });
+  }
   else { localStorage.setItem(TRIP_KEY, JSON.stringify(S)); render(); }
 }
 function boot(){
