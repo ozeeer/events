@@ -893,7 +893,7 @@ function renderCars(){
     }
     const canManage = c.driver===me||adminOK;
     const modelPicker = canManage ? `<select class="small" style="margin-top:.5rem;width:100%" onchange="editCarModel('${id}',this.value)">${CAR_MODELS.map(m=>`<option value="${m.id}" ${m.id===c.model?"selected":""}>${esc(m.label)}</option>`).join("")}</select>` : "";
-    return `<div class="car ${mine?"mine":""}"><div class="row" style="justify-content:space-between"><b>${esc(c.name)}</b><span class="hint">${riders.length}/${c.seats} seats</span></div>${carPhoto(c)}${modelPicker}<div class="seats">${seats}</div>${canManage?`<button class="btn small danger" onclick="delCar('${id}')">Remove car</button>`:""}</div>`;
+    return `<div class="car ${mine?"mine":""}"><div class="row" style="justify-content:space-between"><b ${canManage?`onclick="renameCar('${id}')" style="cursor:pointer" title="tap to rename"`:""}>${esc(c.name)}${canManage?" ✏️":""}</b><span class="hint">${riders.length}/${c.seats} seats</span></div>${carPhoto(c)}${modelPicker}<div class="seats">${seats}</div>${canManage?`<button class="btn small danger" onclick="delCar('${id}')">Remove car</button>`:""}</div>`;
   }).join("") : "<p class='hint'>No cars yet — drivers, add yours!</p>";
   /* stats */
   const need=Object.keys(S.people).filter(pid=>!S.people[pid].drive && !Object.values(S.cars).some(c=>(c.riders||[]).includes(pid)));
@@ -911,7 +911,7 @@ function addCar(){
   const m=CAR_MODELS.find(x=>x.id===$("carModel").value)||CAR_MODELS[0];
   const seats=Math.max(1,+$("carSeats").value||3);
   const color = m.id==="other" ? ($("carColor").value.trim()||CAR_COLORS[Object.keys(S.cars).length%CAR_COLORS.length]) : m.color;
-  const label = $("carName").value.trim() || m.label;
+  const label = $("carName").value.trim() || (S.people[d]?.name ? S.people[d].name+"'s car" : m.label);
   S.cars[uid()]={driver:d,name:label,img:m.img||"",color,model:m.id,seats,riders:[]};
   S.people[d].drive=true; S.people[d].seats=seats;
   $("carName").value=""; $("carColor").value=""; save();
@@ -938,6 +938,14 @@ function editCarModel(id,modelId){
     c.img=m.img||""; c.color=m.color;
   }
   toast("Car updated to "+m.label); save();
+}
+function renameCar(id){
+  const c=S.cars[id]; if(!c) return;
+  if(!(c.driver===me||adminOK)) return toast("Only the driver can rename this car");
+  const name=prompt("Name this car:", c.name||"");
+  if(name===null) return;
+  c.name=name.trim()||(S.people[c.driver]?.name?S.people[c.driver].name+"'s car":"Car");
+  save();
 }
 
 /* ---------------- shopping ---------------- */
