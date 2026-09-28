@@ -396,7 +396,8 @@ footer{text-align:center;padding:2rem 1rem;color:var(--ink-2);font-size:.85rem}
   <div class="card" style="margin-top:1.2rem">
     <h3>Add your car</h3>
     <p class="hint">Pick anyone from the trip as the driver — no need to set anything on Join first.</p>
-    <div class="row"><select id="carDriver" style="max-width:220px"></select><input id="carName" placeholder="Car (e.g. grey Civic)" style="max-width:200px"><input id="carSeats" type="number" min="1" max="7" value="3" style="max-width:80px" title="passenger seats"><button class="btn small" onclick="addCar()">Add car</button></div>
+    <div class="row" style="margin-bottom:.5rem"><select id="carDriver" style="max-width:220px"></select><select id="carModel" style="max-width:220px" onchange="onCarModelChange()"></select></div>
+    <div class="row"><input id="carColor" placeholder="Color (for 'Other')" style="max-width:150px" title="only used when model is 'Other'"><input id="carName" placeholder="Label (optional, e.g. 'the grey one')" style="max-width:190px"><input id="carSeats" type="number" min="1" max="7" value="3" style="max-width:80px" title="passenger seats"><button class="btn small" onclick="addCar()">Add car</button></div>
   </div>
   <div class="card creek" id="rideStats"></div>
 </section>
@@ -839,10 +840,32 @@ function addOwnTent(){
 function delTent(id){ if(confirm("Delete "+S.tents[id].name+"?")){ delete S.tents[id]; save(); } }
 
 /* ---------------- carpool ---------------- */
-function carSVG(color){
-  return `<svg viewBox="0 0 110 50" aria-hidden="true"><path d="M8 32 Q10 20 26 18 L38 8 Q40 6 44 6 L74 6 Q78 6 80 9 L90 18 Q104 20 104 30 L104 36 Q104 40 100 40 L12 40 Q8 40 8 36Z" fill="${color}"/><path d="M44 9 L42 18 L60 18 L60 9Z M64 9 L64 18 L80 18 L74 10Z" fill="#cfe8ff"/><g class="wheel"><circle cx="30" cy="40" r="8" fill="#222"/><circle cx="30" cy="40" r="3.5" fill="#999"/><rect x="29" y="33" width="2" height="14" fill="#999"/></g><g class="wheel"><circle cx="84" cy="40" r="8" fill="#222"/><circle cx="84" cy="40" r="3.5" fill="#999"/><rect x="83" y="33" width="2" height="14" fill="#999"/></g><circle cx="103" cy="30" r="2.5" fill="#ffe9a8"/></svg>`;
+function wheelPair(cy,r){
+  return `<g class="wheel"><circle cx="30" cy="${cy}" r="${r}" fill="#222"/><circle cx="30" cy="${cy}" r="${(r*.44).toFixed(1)}" fill="#999"/><rect x="29" y="${cy-7}" width="2" height="14" fill="#999"/></g><g class="wheel"><circle cx="84" cy="${cy}" r="${r}" fill="#222"/><circle cx="84" cy="${cy}" r="${(r*.44).toFixed(1)}" fill="#999"/><rect x="83" y="${cy-7}" width="2" height="14" fill="#999"/></g>`;
+}
+function sedanSVG(color){
+  return `<svg viewBox="0 0 110 50" aria-hidden="true"><path d="M8 32 Q10 20 26 18 L38 8 Q40 6 44 6 L74 6 Q78 6 80 9 L90 18 Q104 20 104 30 L104 36 Q104 40 100 40 L12 40 Q8 40 8 36Z" fill="${color}"/><path d="M44 9 L42 18 L60 18 L60 9Z M64 9 L64 18 L80 18 L74 10Z" fill="#cfe8ff"/>${wheelPair(40,8)}<circle cx="103" cy="30" r="2.5" fill="#ffe9a8"/></svg>`;
+}
+function suvSVG(color){
+  return `<svg viewBox="0 0 110 50" aria-hidden="true"><path d="M4 30 L4 21 Q4 15 11 13 L33 8 Q37 6 43 6 L79 6 Q85 6 89 10 L100 16 Q109 18 109 27 L109 39 Q109 43 105 43 L8 43 Q4 43 4 39Z" fill="${color}"/><path d="M40 9 L38 18 L57 18 L58 9Z M62 9 L62 18 L84 18 L80 10Z" fill="#cfe8ff"/>${wheelPair(43,9)}<circle cx="104" cy="30" r="2.6" fill="#ffe9a8"/></svg>`;
+}
+function crossoverSVG(color){
+  return `<svg viewBox="0 0 110 50" aria-hidden="true"><path d="M4 31 L4 22 Q4 16 11 14 L30 9 Q35 6 43 6 L74 6 Q81 6 86 10 L98 17 Q108 18 108 27 L108 39 Q108 43 104 43 L8 43 Q4 43 4 39Z" fill="${color}"/><path d="M40 10 L38 19 L55 19 L56 10Z M60 10 L60 19 L80 19 L77 11Z" fill="#cfe8ff"/><path d="M87 12 L87 18 M91 12 L91 18 M95 13 L95 18" stroke="#00000033" stroke-width="1.6"/>${wheelPair(43,9)}<circle cx="103" cy="30" r="2.6" fill="#ffe9a8"/></svg>`;
+}
+function carSVG(color,body){
+  if(body==="suv") return suvSVG(color);
+  if(body==="crossover") return crossoverSVG(color);
+  return sedanSVG(color);
 }
 const CAR_COLORS=["#E8792B","#3F7A68","#5b7bb4","#b45b5b","#8a6bb4","#b49a5b"];
+const CAR_MODELS=[
+  {id:"rav4", label:"Toyota RAV4 (2023)", body:"suv", color:"#1f3350"},
+  {id:"srx", label:"Cadillac SRX (2012)", body:"crossover", color:"#c9ad82"},
+  {id:"cx5", label:"Mazda CX-5 (2014)", body:"suv", color:"#26374f"},
+  {id:"malibu", label:"Chevrolet Malibu (2012)", body:"sedan", color:"#c2a878"},
+  {id:"corolla", label:"Toyota Corolla (2012)", body:"sedan", color:"#8a8d93"},
+  {id:"other", label:"Other / not listed", body:"sedan", color:""}
+];
 function renderCars(){
   const ids=Object.keys(S.cars);
   /* animated road */
@@ -851,34 +874,49 @@ function renderCars(){
   (ids.length?ids:["demo"]).slice(0,4).forEach((id,i)=>{
     const c=S.cars[id]; const d=document.createElement("div"); d.className="car-drive";
     d.style.setProperty("--d",(6+i*2.2)+"s"); d.style.animationDelay=(i*1.6)+"s"; d.style.top=(10+i*24%60)+"px";
-    d.innerHTML=`<div class="lbl">${c?esc(S.people[c.driver]?.name||"?"):"add a car!"}</div>${carSVG(CAR_COLORS[i%CAR_COLORS.length])}`;
+    const cc = c ? (c.color||CAR_COLORS[i%CAR_COLORS.length]) : CAR_COLORS[i%CAR_COLORS.length];
+    d.innerHTML=`<div class="lbl">${c?esc(S.people[c.driver]?.name||"?"):"add a car!"}</div>${carSVG(cc, c?.body)}`;
     road.appendChild(d);
   });
   /* driver select — anyone already on the trip can be picked as a driver, no need to have set "I can drive" on Join */
   const peopleForDriver=Object.entries(S.people).filter(([id])=>!Object.values(S.cars).some(c=>c.driver===id));
   $("carDriver").innerHTML=peopleForDriver.length?peopleForDriver.map(([id,p])=>`<option value="${id}">${esc(p.name)}</option>`).join(""):"<option value=''>everyone already has a car</option>";
+  /* model select */
+  if($("carModel").options.length===0){
+    $("carModel").innerHTML=CAR_MODELS.map(m=>`<option value="${m.id}">${esc(m.label)}</option>`).join("");
+    onCarModelChange();
+  }
   /* cards */
   $("carGrid").innerHTML = ids.length ? ids.map((id,i)=>{const c=S.cars[id]; const riders=c.riders||[]; const mine=c.driver===me||riders.includes(me);
+    const cc = c.color||CAR_COLORS[i%CAR_COLORS.length];
     let seats=`<div class="seat driver" title="driver">🚗 ${esc(S.people[c.driver]?.name||"?")}</div>`;
     for(let s=0;s<c.seats;s++){
       const pid=riders[s];
       seats+= pid ? `<div class="seat taken ${pid===me?"me":""}" ${pid===me?`onclick="leaveCar('${id}')" title="tap to hop out" style="cursor:pointer"`:""}>${esc(S.people[pid]?.name||"?")}</div>`
                   : `<div class="seat" onclick="hopIn('${id}',this)">empty</div>`;
     }
-    return `<div class="car ${mine?"mine":""}"><div class="row" style="justify-content:space-between"><b>${esc(c.name)}</b><span class="hint">${riders.length}/${c.seats} seats</span></div>${carSVG(CAR_COLORS[i%CAR_COLORS.length])}<div class="seats">${seats}</div>${(c.driver===me||adminOK)?`<button class="btn small danger" onclick="delCar('${id}')">Remove car</button>`:""}</div>`;
+    return `<div class="car ${mine?"mine":""}"><div class="row" style="justify-content:space-between"><b>${esc(c.name)}</b><span class="hint">${riders.length}/${c.seats} seats</span></div>${carSVG(cc, c.body)}<div class="seats">${seats}</div>${(c.driver===me||adminOK)?`<button class="btn small danger" onclick="delCar('${id}')">Remove car</button>`:""}</div>`;
   }).join("") : "<p class='hint'>No cars yet — drivers, add yours!</p>";
   /* stats */
   const need=Object.keys(S.people).filter(pid=>!S.people[pid].drive && !Object.values(S.cars).some(c=>(c.riders||[]).includes(pid)));
   const free=ids.reduce((a,id)=>a+S.cars[id].seats-(S.cars[id].riders||[]).length,0);
   $("rideStats").innerHTML=`<h3>Ride check</h3><p><b>${free}</b> free seat${free!==1?"s":""} · <b>${need.length}</b> still need a ride${need.length?": "+need.map(p=>esc(S.people[p].name)).join(", "):" — everyone's covered ✅"}</p>`;
 }
+function onCarModelChange(){
+  const m=CAR_MODELS.find(x=>x.id===$("carModel").value)||CAR_MODELS[0];
+  $("carColor").style.display = m.id==="other" ? "block" : "none";
+  $("carColor").value = "";
+}
 function addCar(){
   const d=$("carDriver").value; if(!d) return toast("Pick a driver first");
   if(Object.values(S.cars).some(c=>c.driver===d)) return toast("That driver already has a car");
+  const m=CAR_MODELS.find(x=>x.id===$("carModel").value)||CAR_MODELS[0];
   const seats=Math.max(1,+$("carSeats").value||3);
-  S.cars[uid()]={driver:d,name:$("carName").value.trim()||esc(S.people[d].name)+"'s car",seats,riders:[]};
+  const color = m.id==="other" ? ($("carColor").value.trim()||CAR_COLORS[Object.keys(S.cars).length%CAR_COLORS.length]) : m.color;
+  const label = $("carName").value.trim() || m.label;
+  S.cars[uid()]={driver:d,name:label,body:m.body,color,model:m.id,seats,riders:[]};
   S.people[d].drive=true; S.people[d].seats=seats;
-  $("carName").value=""; save();
+  $("carName").value=""; $("carColor").value=""; save();
 }
 function hopIn(id,el){
   if(!needMe()) return; const c=S.cars[id];
