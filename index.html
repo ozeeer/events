@@ -110,6 +110,15 @@ details ul{padding-left:1.2rem}details li{margin:.3rem 0}
 table{width:100%;border-collapse:collapse;font-size:.92rem}
 th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid var(--canvas-2);vertical-align:top}
 .countdown{display:flex;gap:.8rem}
+#countdownCard.party{position:relative;overflow:hidden;text-align:center}
+#countdownCard.party .countdown{display:block}
+.bigdone{position:relative;z-index:1;padding:.4rem 0 .6rem}
+.bigtitle{font-family:var(--font-display);font-size:clamp(2.6rem,11vw,4.5rem);font-weight:800;line-height:1.05;color:var(--ember,#E8792B);animation:bigpop 1.6s ease-in-out infinite}
+.bigsub{font-size:1rem;line-height:1.5;margin-top:.7rem;color:#444;max-width:30rem;margin-inline:auto}
+@keyframes bigpop{50%{transform:scale(1.05) rotate(-1.5deg)}}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetto{position:absolute;top:-20px;opacity:.95;animation:confall linear infinite}
+@keyframes confall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(420px) rotate(720deg)}}
 .countdown div{text-align:center}.countdown .stat{font-size:2rem}
 .timeline{border-left:3px solid var(--ember);margin-left:.6rem;padding-left:1.2rem}
 .timeline .ev{position:relative;margin:0 0 1rem}
@@ -313,7 +322,7 @@ footer{text-align:center;padding:2rem 1rem;color:var(--ink-2);font-size:.85rem}
     <div class="card night"><div class="stat" id="stNights">?</div><div class="stat-l">nights</div></div>
     <div class="card"><div class="stat" id="stPeople">0</div><div class="stat-l">going</div></div>
   </div>
-  <div class="card" id="countdownCard" style="display:none"><h3>Countdown</h3><div class="countdown" id="countdown"></div></div>
+  <div class="card" id="countdownCard" style="display:none"><h3 id="countdownTitle">Countdown</h3><div class="countdown" id="countdown"></div></div>
   <div class="card" id="pollCard">
     <h3>Vote for a date</h3>
     <p class="hint">Dates aren't fixed yet. Tap to vote for every weekend you can make. Ozer will lock in the winner in settings.</p>
@@ -653,7 +662,22 @@ function dateLabel(){ const st=S.settings; if(st.dateStatus!=="set"||!st.start) 
 function renderCountdown(){
   const st=S.settings, c=$("countdownCard"); if(st.dateStatus!=="set"||!st.start){c.style.display="none";return;}
   c.style.display="block"; const ms=new Date(st.start+"T"+(st.meetTime.match(/\d+/)?"09:00":"09:00")+":00")-new Date();
-  if(ms<0){ $("countdown").innerHTML="<div class='stat'>Now!</div>"; return; }
+  const endMs=new Date((st.end||st.start)+"T23:59:59")-new Date();
+  const T=$("countdownTitle");
+  if(ms<0 && endMs>=0){ T.textContent="Happening now"; c.classList.remove("party"); delete $("countdown").dataset.state; $("countdown").innerHTML="<div><div class='stat' style='font-size:1.5rem'>⛺ We're out here!</div><div class='stat-l'>Enjoy every minute of it.</div></div>"; return; }
+  if(ms<0){
+    T.textContent="Trip complete"; c.classList.add("party");
+    if($("countdown").dataset.state!=="done"){
+      $("countdown").dataset.state="done";
+      const cols=["#E8792B","#f6d55c","#3F7A68","#5b7bb4","#b45b5b","#8a6bb4","#fff"];
+      let conf="";
+      for(let i=0;i<60;i++){ const l=Math.random()*100, dl=Math.random()*4, du=3+Math.random()*3, w=6+Math.random()*7, r=Math.random()>.5?"50%":"2px";
+        conf+=`<i class="confetto" style="left:${l}%;width:${w}px;height:${w*1.5}px;background:${cols[i%cols.length]};border-radius:${r};animation-duration:${du}s;animation-delay:${dl}s"></i>`; }
+      $("countdown").innerHTML=`<div class="confetti">${conf}</div><div class="bigdone"><div class="bigtitle">🔥 We did it!</div><div class="bigsub">Waterfalls, campfire, and good company. Thanks for making it a great weekend — see you on the next one.</div></div>`;
+    }
+    return;
+  }
+  T.textContent="Countdown"; c.classList.remove("party"); delete $("countdown").dataset.state;
   const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);
   $("countdown").innerHTML=`<div><div class="stat">${d}</div><div class="stat-l">days</div></div><div><div class="stat">${h}</div><div class="stat-l">hours</div></div><div><div class="stat">${m}</div><div class="stat-l">min</div></div>`;
 }
