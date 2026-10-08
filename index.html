@@ -189,6 +189,16 @@ th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid var(--canvas-2
 .expense-total{display:flex;justify-content:space-between;padding:.7rem 0 .2rem;font-weight:700;border-top:2px solid var(--ink);margin-top:.2rem}
 .settle-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:.6rem;align-items:center;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.12)}
 .settle-row:last-child{border:none}
+.splitbox{margin-top:.7rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.chip{border:1.5px solid #cfd6dc;background:#fff;color:#555;border-radius:999px;padding:.3rem .75rem;font-size:.82rem;font-weight:600;cursor:pointer}
+.chip.on{background:var(--pine,#2f6b57);border-color:var(--pine,#2f6b57);color:#fff}
+.linkbtn{background:none;border:none;color:var(--pine,#2f6b57);font-weight:700;cursor:pointer;font-size:.8rem;padding:0}
+.expense-row .splitnote{display:block;font-size:.72rem;color:#888;margin-top:.1rem}
+.settle-row{grid-template-columns:auto 1fr auto auto}
+.settle-row.paid b,.settle-row.paid .amt{opacity:.55;text-decoration:line-through}
+.paidbtn{border:1.5px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:.3rem .8rem;font-weight:700;font-size:.78rem;cursor:pointer;white-space:nowrap}
+.paidbtn.on{background:#fff;color:#2f6b57;border-color:#fff}
 .settle-row .amt{font-weight:700;font-family:var(--font-display);white-space:nowrap}
 .settle-row .avatar{width:28px;height:28px;font-size:.72rem;background:rgba(255,255,255,.18)}
 
@@ -338,13 +348,14 @@ footer{text-align:center;padding:2rem 1rem;color:var(--ink-2);font-size:.85rem}
   </div>
   <div class="card">
     <h3>Expenses & who owes what</h3>
-    <p class="hint">Log anything you paid for — gas, shopping run, ice, whatever. Splits evenly across everyone who's joined, and settles up at the end.</p>
+    <p class="hint">Log anything you paid for — gas, shopping run, ice, whatever. Splits evenly across everyone by default — or tap names below to split with just some people.</p>
     <div class="addrow addrow-ex">
       <div><label>What</label><input id="exDesc" placeholder="e.g. Gas for the drive"></div>
       <div><label>Amount $</label><input id="exAmt" type="number" min="0" step="0.01" placeholder="0"></div>
       <div><label>Paid by</label><select id="exWho"></select></div>
       <button class="btn" onclick="addExpense()">Add</button>
     </div>
+    <div class="splitbox"><div class="row" style="justify-content:space-between;align-items:baseline"><label style="margin:0">Split between <span id="exSplitCt" class="hint"></span></label><span><button type="button" class="linkbtn" onclick="exSplitAll(true)">All</button> · <button type="button" class="linkbtn" onclick="exSplitAll(false)">None</button></span></div><div id="exSplit" class="chips"></div></div>
     <div id="expenseList" style="margin-top:.8rem"></div>
     <div class="card night" id="settleUp" style="margin:1rem 0 0"></div>
   </div>
@@ -512,7 +523,7 @@ const DEFAULT = {
     t2:{name:"Tent 2 — 4P",cap:4,site:"49",members:["yifan","yan","ozer","clare"],own:false},
     t3:{name:"Tent 3 — 3P",cap:3,site:"49",members:["ilayda","navneet","vaishnavi"],own:false}
   },
-  cars:{}, shopping:{}, poll:{}, jobs:{}, expenses:{},
+  cars:{}, shopping:{}, poll:{}, jobs:{}, expenses:{}, paid:{},
   plan:[
     {title:"Sat Oct 3", items:[
       {t:"9:00 AM", x:"Meet at Millennium Science Complex (MSC). Load cars, quick headcount, top off gas."},
@@ -559,7 +570,7 @@ function normalize(s){
   const n = JSON.parse(JSON.stringify(DEFAULT));
   if(!s) return n;
   n.settings = Object.assign(n.settings, s.settings||{}); n.settings.park = Object.assign(n.settings.park, (s.settings||{}).park||{});
-  for(const k of ["people","tents","cars","shopping","poll","jobs","expenses"]) n[k] = s[k]||{};
+  for(const k of ["people","tents","cars","shopping","poll","jobs","expenses","paid"]) n[k] = s[k]||{};
   if(Array.isArray(s.plan)) n.plan = s.plan;
   return n;
 }
@@ -698,8 +709,19 @@ function renderChairs(){
     ? `<div class="row">${ppl.map(([,p])=>`<span class="pill pine">${esc(p.name)} × ${p.chairs}</span>`).join("")}</div><p class="hint" style="margin-top:.5rem"><b>Total: ${total} chairs</b>${total<Object.keys(S.people).length? " — might not be enough for everyone, check before you go":""}</p>`
     : `<p class="hint">Nobody's logged a chair yet. Add yours on the Join page.</p>`;
 }
+let exSel=null; /* null = everyone (untouched) */
+function exSelected(){ const ids=Object.keys(S.people); return exSel? ids.filter(i=>exSel.has(i)) : ids; }
+function exSplitToggle(id){ if(!exSel) exSel=new Set(Object.keys(S.people)); exSel.has(id)?exSel.delete(id):exSel.add(id); renderExSplit(); }
+function exSplitAll(on){ exSel= on? null : new Set(); renderExSplit(); }
+function renderExSplit(){
+  const el=$("exSplit"); if(!el) return;
+  const sel=exSelected();
+  el.innerHTML=Object.entries(S.people).map(([id,p])=>`<button type="button" class="chip ${sel.includes(id)?"on":""}" onclick="exSplitToggle('${id}')">${esc(p.name)}</button>`).join("");
+  $("exSplitCt").textContent="("+sel.length+" of "+Object.keys(S.people).length+")";
+}
 function renderExpenses(){
   const peopleIds = Object.keys(S.people);
+  renderExSplit();
   const sel = $("exWho");
   if(sel){
     const cur = sel.value;
@@ -708,34 +730,45 @@ function renderExpenses(){
   }
   const rows = Object.entries(S.expenses||{}).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
   const total = rows.reduce((a,[,e])=>a+(+e.amt||0),0);
-  $("expenseList").innerHTML = rows.length ? rows.map(([id,e])=>`<div class="expense-row"><div>${esc(e.desc)}<span class="paidby">paid by ${esc(S.people[e.who]?.name||"?")}</span></div><div class="amt">$${(+e.amt).toFixed(2)}</div><button class="x" onclick="delExpense('${id}')" title="delete">✕</button></div>`).join("") + `<div class="expense-total"><span>Total spent</span><span>$${total.toFixed(2)}</span></div>` : "<p class='hint'>No expenses logged yet.</p>";
+  $("expenseList").innerHTML = rows.length ? rows.map(([id,e])=>`<div class="expense-row"><div>${esc(e.desc)}<span class="paidby">paid by ${esc(S.people[e.who]?.name||"?")}</span>${splitNote(e)}</div><div class="amt">$${(+e.amt).toFixed(2)}</div><button class="x" onclick="delExpense('${id}')" title="delete">✕</button></div>`).join("") + `<div class="expense-total"><span>Total spent</span><span>$${total.toFixed(2)}</span></div>` : "<p class='hint'>No expenses logged yet.</p>";
   const n = peopleIds.length;
   if(!n || !rows.length){ $("settleUp").innerHTML = rows.length ? "<p class='hint' style='margin:0;color:#fff'>Add people on the Join page to split this.</p>" : ""; return; }
   const fair = total / n;
-  const paid = {}; peopleIds.forEach(id=>paid[id]=0);
-  rows.forEach(([,e])=>{ if(paid[e.who]!==undefined) paid[e.who]+=(+e.amt||0); });
-  const net = peopleIds.map(id=>({id, name:S.people[id].name, net: paid[id]-fair}));
+  const paid = {}, owes = {}; peopleIds.forEach(id=>{paid[id]=0; owes[id]=0;});
+  rows.forEach(([,e])=>{ const a=+e.amt||0; if(paid[e.who]!==undefined) paid[e.who]+=a; const sh=expShares(e); sh.forEach(i=>{ owes[i]+=a/sh.length; }); });
+  const net = peopleIds.map(id=>({id, name:S.people[id].name, net: paid[id]-owes[id]}));
   const owe = net.filter(p=>p.net<-0.01).sort((a,b)=>a.net-b.net);
   const owed = net.filter(p=>p.net>0.01).sort((a,b)=>b.net-a.net);
   const settlements=[]; let i=0,j=0; const o2=owe.map(p=>({...p})), w2=owed.map(p=>({...p}));
   while(i<o2.length && j<w2.length){
     const amt=Math.min(-o2[i].net, w2[j].net);
-    if(amt>0.01) settlements.push({from:o2[i].name, to:w2[j].name, amt});
+    if(amt>0.01) settlements.push({from:o2[i].name, to:w2[j].name, fromId:o2[i].id, toId:w2[j].id, amt});
     o2[i].net+=amt; w2[j].net-=amt;
     if(Math.abs(o2[i].net)<0.01) i++; if(Math.abs(w2[j].net)<0.01) j++;
   }
-  $("settleUp").innerHTML = `<div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="color:#fff;margin:0">Settle up</h3><span class="hint" style="color:rgba(255,255,255,.7)">fair share $${fair.toFixed(2)}/person</span></div>` +
-    (settlements.length
-      ? (()=>{
-          const byCreditor={};
-          settlements.forEach(s=>{ (byCreditor[s.to]=byCreditor[s.to]||[]).push(s); });
-          return Object.entries(byCreditor).map(([to,list])=>
-            `<div style="margin-top:.6rem"><p class="hint" style="color:rgba(255,255,255,.7);margin:0 0 .3rem">Owed to <b style="color:#fff">${esc(to)}</b></p>` +
-            list.map(s=>`<div class="settle-row"><span class="avatar">${initials(s.from)}</span><b>${esc(s.from)}</b><span></span><span class="amt">$${s.amt.toFixed(2)}</span></div>`).join("") +
-            `</div>`
-          ).join("");
-        })()
-      : `<p style="color:#fff;margin:.5rem 0 0">Everyone's even. 🎉</p>`);
+  const isPaid=s=>(+S.paid?.[s.fromId+">"+s.toId]||0) >= s.amt-0.01;
+  const doneCt=settlements.filter(isPaid).length;
+  const left=settlements.filter(s=>!isPaid(s)).reduce((a,s)=>a+s.amt,0);
+  const head=`<div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="color:#fff;margin:0">Settle up</h3><span class="hint" style="color:rgba(255,255,255,.7)">avg $${fair.toFixed(2)}/person</span></div>`;
+  let body;
+  if(!settlements.length) body=`<p style="color:#fff;margin:.5rem 0 0">Everyone's even. 🎉</p>`;
+  else{
+    const byCreditor={};
+    settlements.forEach(s=>{ (byCreditor[s.to]=byCreditor[s.to]||[]).push(s); });
+    body=`<p class="hint" style="color:rgba(255,255,255,.85);margin:.4rem 0 0"><b style="color:#fff">${doneCt}/${settlements.length}</b> paid · ${left>0.01?`$${left.toFixed(2)} still outstanding`:"all settled 🎉"}</p>`+
+      Object.entries(byCreditor).map(([to,list])=>
+        `<div style="margin-top:.6rem"><p class="hint" style="color:rgba(255,255,255,.7);margin:0 0 .3rem">Owed to <b style="color:#fff">${esc(to)}</b></p>`+
+        list.map(s=>{const pd=isPaid(s); return `<div class="settle-row ${pd?"paid":""}"><span class="avatar">${initials(s.from)}</span><b>${esc(s.from)}</b><span class="amt">$${s.amt.toFixed(2)}</span><button class="paidbtn ${pd?"on":""}" onclick="togglePaid('${s.fromId}','${s.toId}',${s.amt.toFixed(2)})">${pd?"✓ Paid":"Mark paid"}</button></div>`;}).join("")+
+        `</div>`).join("");
+  }
+  $("settleUp").innerHTML = head+body;
+}
+function togglePaid(fromId,toId,amt){
+  if(!needMe()) return;
+  const k=fromId+">"+toId; S.paid=S.paid||{};
+  if((+S.paid[k]||0)>=amt-0.01){ if(!confirm("Mark this as NOT paid?")) return; delete S.paid[k]; }
+  else S.paid[k]=amt;
+  save();
 }
 function addExpense(){
   if(!needMe()) return;
@@ -743,9 +776,14 @@ function addExpense(){
   if(!desc) return toast("What was it for?");
   if(!amt || amt<=0) return toast("Enter an amount");
   if(!who) return toast("Who paid?");
-  S.expenses[uid()]={desc, amt, who, ts:Date.now()};
+  const sel=exSelected(); if(!sel.length) return toast("Pick at least one person to split with");
+  const e={desc, amt, who, ts:Date.now()};
+  if(sel.length<Object.keys(S.people).length) e.split=sel;
+  S.expenses[uid()]=e; exSel=null;
   $("exDesc").value=""; $("exAmt").value=""; toast("Added — $"+amt.toFixed(2)+" for "+desc); save();
 }
+function expShares(e){ const all=Object.keys(S.people); const l=(e.split||[]).filter(i=>S.people[i]); return l.length?l:all; }
+function splitNote(e){ const s=expShares(e); const all=Object.keys(S.people).length; if(s.length===all) return ""; return `<span class="splitnote">split ${s.length} way${s.length>1?"s":""}: ${s.map(i=>esc(S.people[i].name)).join(", ")}</span>`; }
 function delExpense(id){ if(confirm("Delete this expense?")){ delete S.expenses[id]; save(); } }
 /* weather */
 fetch("https://api.open-meteo.com/v1/forecast?latitude=41.31&longitude=-76.31&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=celsius&timezone=America%2FNew_York").then(r=>r.json()).then(w=>{
